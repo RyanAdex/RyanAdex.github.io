@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>new on 瑞恩的官方网站</title>
+    <link>https://timeiord.github.io/tags/new/</link>
+    <description>Recent content in new on 瑞恩的官方网站</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-Hans</language>
+    <copyright>&amp;copy; 2018</copyright>
+    <lastBuildDate>Tue, 27 Nov 2018 19:30:00 +0800</lastBuildDate>
+    
+	<atom:link href="https://timeiord.github.io/tags/new/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>李群的群论</title>
+      <link>https://timeiord.github.io/post/today/</link>
+      <pubDate>Tue, 27 Nov 2018 19:30:00 +0800</pubDate>
+      
+      <guid>https://timeiord.github.io/post/today/</guid>
+      <description>hello girl</description>
+    </item>
+    
+  </channel>
+</rss>

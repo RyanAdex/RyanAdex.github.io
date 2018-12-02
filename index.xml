@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Ryan&#39;s Blog on Ryan&#39;s Blog</title>
+    <link>https://RyanAdex.github.io/</link>
+    <description>Recent content in Ryan&#39;s Blog on Ryan&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-Hans</language>
+    <copyright>&amp;copy; 2018</copyright>
+    <lastBuildDate>Sun, 15 Oct 2017 00:00:00 +0800</lastBuildDate>
+    <atom:link href="/" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>go语言 os.Rename() cannot move the file to a different disk drive 怎么办</title>
+      <link>https://RyanAdex.github.io/post/filemove/</link>
+      <pubDate>Wed, 28 Nov 2018 13:28:46 +0800</pubDate>
+      
+      <guid>https://RyanAdex.github.io/post/filemove/</guid>
+      <description>&lt;p&gt;时值我小病在家休养生息，喜欢跳广场舞的外公来寻求我的帮助，他们跳广场舞是将存有歌曲的U盘插到音响上面，而音响大部分都是只能显示歌曲的索引&lt;code&gt;index&lt;/code&gt;，不能直接显示歌曲名，所以为了方便他们会在U盘里面对歌曲进行排序。由于音响是寻址按顺序播放，意思就是在U盘里面的歌曲需要一首一首的按顺序复制过去，而且当对U盘歌曲进行增添的时候又需要按照顺序重新复制一遍，可以说相当麻烦。&lt;strong&gt;为了将我从这重复的劳动中解放出来&lt;/strong&gt;，我用go语言写了一个小工具，本来想着分分钟写完，却没想到踩到了坑。
+在&lt;code&gt;os&lt;/code&gt;包中有一个&lt;code&gt;Rename()&lt;/code&gt;函数具有重命名和移动的功能，其函数如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;func Rename(oldpath, newpath string) error
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Rename修改一个文件的名字，移动一个文件。可能会有一些个操作系统特定的限制。&lt;/p&gt;
+
+&lt;p&gt;在windows系统下面使用该函数，&lt;code&gt;oldpath&lt;/code&gt;和&lt;code&gt;newpath&lt;/code&gt;在同一个磁盘/卷下面能正常使用，可我需要将音乐移动到U盘上，当使用这个函数的时候出现了：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;The system cannot move the file to a different disk drive.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;搜索&lt;code&gt;Github&lt;/code&gt;的&lt;a href=&#34;https://github.com/golang/go/issues/13766&#34; target=&#34;_blank&#34;&gt;issues&lt;/a&gt;，发现Rename在windows中不能进行跨磁盘/卷操作。
+为了实现跨磁盘/卷操作，一种方法是直接调用&lt;code&gt;windows API&lt;/code&gt;，于是在&lt;a href=&#34;https://docs.microsoft.com/zh-cn/windows/desktop/api/winbase/nf-winbase-movefile&#34; target=&#34;_blank&#34;&gt;windows api docs&lt;/a&gt;中搜索到&lt;code&gt;movefileex()&lt;/code&gt;函数能够实现该功能，但是在go语言的&lt;code&gt;syscall&lt;/code&gt;包中只有&lt;code&gt;movefile()&lt;/code&gt;函数，其函数如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;func MoveFile(from *uint16, to *uint16) (err error)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;实现文件移动的函数可以写成：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;func movefile(oldpath, newpath string) error { //跨卷移动
+    from, err := syscall.UTF16PtrFromString(oldpath)
+    if err != nil {
+        return err
+    }
+    to, err := syscall.UTF16PtrFromString(newpath)
+    if err != nil {
+        return err
+    }
+    return syscall.MoveFile(from, to)//windows API
+
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;当我们读取&lt;code&gt;oldpath&lt;/code&gt;目录里面的文件时调用&lt;code&gt;io/ioutil&lt;/code&gt;包的&lt;code&gt;ReadDir()&lt;/code&gt;函数可按照文件夹内的排序方式批量读入文件名，其函数实现如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;func filenamelist(filepath string) []string {
+    var list []string
+    rd, err := ioutil.ReadDir(filepath) //遍历目录
+    if err != nil {
+        log.Fatal(err)
+    }
+    for _, fi := range rd {
+        if fi.IsDir() {
+            fmt.Printf(&amp;quot;[%s]is dir\n&amp;quot;, fi.Name())
+
+        } else {
+            list = append(list, fi.Name())
+            fmt.Println(filepath + fi.Name())
+        }
+    }
+    return list//返回一个string数组
+
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;当然也可以普通方式读入文件名然后用&lt;code&gt;sort&lt;/code&gt;包进行排序。
+下面是完整代码：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;package main
+
+import (
+    &amp;quot;fmt&amp;quot;
+    &amp;quot;io/ioutil&amp;quot;
+    &amp;quot;log&amp;quot;
+    &amp;quot;os&amp;quot;
+    &amp;quot;syscall&amp;quot;
+)
+
+func movefile(oldpath, newpath string) error { //跨卷移动
+    from, err := syscall.UTF16PtrFromString(oldpath)
+    if err != nil {
+        return err
+    }
+    to, err := syscall.UTF16PtrFromString(newpath)
+    if err != nil {
+        return err
+    }
+    return syscall.MoveFile(from, to)//windows API
+
+}
+func filenamelist(filepath string) []string {
+    var list []string
+    rd, err := ioutil.ReadDir(filepath) //遍历目录
+    if err != nil {
+        log.Fatal(err)
+    }
+    for _, fi := range rd {
+        if fi.IsDir() {
+            fmt.Printf(&amp;quot;[%s]is dir\n&amp;quot;, fi.Name())
+
+        } else {
+            list = append(list, fi.Name())
+            fmt.Println(filepath + fi.Name())
+        }
+    }
+    return list
+
+}
+func movefilelist(oldpath, newpath string) {
+    for _, fi := range filenamelist(oldpath) { //移动目录的所有文件
+        err := movefile(oldpath+fi, newpath+fi)
+        if err != nil {
+            log.Fatal(err)
+        }
+        fmt.Println(fi + &amp;quot;--Move To --&amp;gt;&amp;quot; + newpath + &amp;quot;--OK!&amp;quot;)
+
+    }
+}
+func main() {
+    movefilelist(os.Args[1], os.Args[2])
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;最后在终端中：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;Ryan@DESKTO MINGW64 /Go/test (master)
+$ go run main.go ~/Desktop/music/ /d/
+C:/Users/Ryan/Desktop/music/新建文本文档 (2).txt
+C:/Users/Ryan/Desktop/music/新建文本文档.txt
+新建文本文档 (2).txt--Move To --&amp;gt;D:/--OK!
+新建文本文档.txt--Move To --&amp;gt;D:/--OK!
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;有了这个脚本，我今后终于可以愉快的帮助我外公了。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;转载请注明&lt;/strong&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Example Page</title>
+      <link>https://RyanAdex.github.io/tutorial/example/</link>
+      <pubDate>Sun, 09 Sep 2018 00:00:00 +0800</pubDate>
+      
+      <guid>https://RyanAdex.github.io/tutorial/example/</guid>
+      <description>
+
+&lt;p&gt;In this tutorial, I&amp;rsquo;ll share my top 10 tips for getting started with Academic:&lt;/p&gt;
+
+&lt;h2 id=&#34;tip-1&#34;&gt;Tip 1&lt;/h2&gt;
+
+&lt;p&gt;&amp;hellip;&lt;/p&gt;
+
+&lt;h2 id=&#34;tip-2&#34;&gt;Tip 2&lt;/h2&gt;
+
+&lt;p&gt;&amp;hellip;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

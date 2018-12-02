@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="generator" content="Source Themes Academic 3.1.1">
+  <meta name="generator" content="Hugo 0.51" />
+  <meta name="author" content="Ryan">
+
+  
+  
+  
+  
+    
+  
+  <meta name="description" content="时值我小病在家休养生息，喜欢跳广场舞的外公来寻求我的帮助，他们跳广场舞是将存有歌曲的U盘插到音响上面，而音响大部分都是只能显示歌曲的索引in">
+
+  
+  <link rel="alternate" hreflang="zh-Hans" href="https://RyanAdex.github.io/post/filemove/">
+
+  
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <meta name="theme-color" content="#4caf50">
+  
+
+  
+  
+  
+  
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" integrity="sha256-ygkqlh3CYSUri3LhQxzdcm0n1EQvH2Y+U5S2idbLtxs=" crossorigin="anonymous">
+
+    
+    
+    
+      
+    
+    
+      
+      
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" crossorigin="anonymous">
+      
+    
+
+    
+
+    
+
+  
+
+  
+  
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:400,700|Merriweather|Roboto+Mono">
+  
+
+  <link rel="stylesheet" href="/styles.css">
+  
+
+  
+  
+  
+
+  
+  <link rel="alternate" href="https://RyanAdex.github.io/index.xml" type="application/rss+xml" title="Ryan&#39;s Blog">
+  <link rel="feed" href="https://RyanAdex.github.io/index.xml" type="application/rss+xml" title="Ryan&#39;s Blog">
+  
+
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="icon" type="image/png" href="/img/icon.png">
+  <link rel="apple-touch-icon" type="image/png" href="/img/icon-192.png">
+
+  <link rel="canonical" href="https://RyanAdex.github.io/post/filemove/">
+
+  <meta property="twitter:card" content="summary_large_image">
+  
+  <meta property="og:site_name" content="Ryan&#39;s Blog">
+  <meta property="og:url" content="https://RyanAdex.github.io/post/filemove/">
+  <meta property="og:title" content="go语言 os.Rename() cannot move the file to a different disk drive 怎么办 | Ryan&#39;s Blog">
+  <meta property="og:description" content="时值我小病在家休养生息，喜欢跳广场舞的外公来寻求我的帮助，他们跳广场舞是将存有歌曲的U盘插到音响上面，而音响大部分都是只能显示歌曲的索引in">
+  
+  
+    
+  <meta property="og:image" content="https://RyanAdex.github.io/img/icon-192.png">
+  <meta property="og:locale" content="zh-Hans">
+  
+  <meta property="article:published_time" content="2018-11-28T13:28:46&#43;08:00">
+  
+  <meta property="article:modified_time" content="2018-11-28T13:28:46&#43;08:00">
+  
+
+  
+
+  
+
+  <title>go语言 os.Rename() cannot move the file to a different disk drive 怎么办 | Ryan&#39;s Blog</title>
+
+</head>
+<body id="top" data-spy="scroll" data-target="#TableOfContents" data-offset="71" >
+  <aside class="search-results" id="search">
+  <div class="container">
+    <section class="search-header fixed-top">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1></h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        <input name="q" id="search-query" placeholder="搜索..." autocapitalize="off"
+        autocomplete="off" autocorrect="off" role="textbox" spellcheck="false" type="search">
+        
+      </div>
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+<nav class="navbar navbar-light fixed-top navbar-expand-lg py-0" id="navbar-main">
+  <div class="container">
+
+    
+      <a class="navbar-brand" href="/">Ryan&#39;s Blog</a>
+      
+      <button type="button" class="navbar-toggler" data-toggle="collapse"
+              data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="切换导航">
+        <span><i class="fas fa-bars"></i></span>
+      </button>
+      
+
+    
+    <div class="collapse navbar-collapse" id="navbar">
+
+      
+      
+      <ul class="navbar-nav ml-auto">
+        
+
+        
+
+        
+        
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/">
+            
+            <span>主页</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/post">
+            
+            <span>帖子</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+      
+
+        
+
+        
+        <li class="nav-item">
+          <a class="nav-link js-search" href="#"><i class="fas fa-search" aria-hidden="true"></i></a>
+        </li>
+        
+
+        
+      </ul>
+
+    </div>
+  </div>
+</nav>
+
+
+<article class="article" itemscope itemtype="http://schema.org/Article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  
+  
+<div class="article-container pt-3">
+  <h1 itemprop="name">go语言 os.Rename() cannot move the file to a different disk drive 怎么办</h1>
+
+  
+
+  
+    
+
+<div class="article-metadata">
+
+  
+  
+  <span itemscope itemprop="author" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ryan">
+  </span>
+  
+
+  <span class="article-date">
+    
+    <meta content="2018-11-28 13:28:46 &#43;0800 CST" itemprop="datePublished">
+    <time datetime="2018-11-28 13:28:46 &#43;0800 CST" itemprop="dateModified">
+      Nov 28, 2018
+    </time>
+  </span>
+  <span itemscope itemprop="publisher" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ryan">
+  </span>
+
+  
+  <span class="middot-divider"></span>
+  <span class="article-reading-time">
+    3 分钟阅读时间
+  </span>
+  
+
+  
+  
+
+  
+
+  
+  
+<div class="share-box" aria-hidden="true">
+  <ul class="share">
+    <li>
+      <a class="twitter"
+         href="https://twitter.com/intent/tweet?text=go%e8%af%ad%e8%a8%80%20os.Rename%28%29%20cannot%20move%20the%20file%20to%20a%20different%20disk%20drive%20%e6%80%8e%e4%b9%88%e5%8a%9e&amp;url=https%3a%2f%2fRyanAdex.github.io%2fpost%2ffilemove%2f"
+         target="_blank" rel="noopener">
+        <i class="fab fa-twitter"></i>
+      </a>
+    </li>
+    <li>
+      <a class="facebook"
+         href="https://www.facebook.com/sharer.php?u=https%3a%2f%2fRyanAdex.github.io%2fpost%2ffilemove%2f"
+         target="_blank" rel="noopener">
+        <i class="fab fa-facebook-f"></i>
+      </a>
+    </li>
+    <li>
+      <a class="linkedin"
+         href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fRyanAdex.github.io%2fpost%2ffilemove%2f&amp;title=go%e8%af%ad%e8%a8%80%20os.Rename%28%29%20cannot%20move%20the%20file%20to%20a%20different%20disk%20drive%20%e6%80%8e%e4%b9%88%e5%8a%9e"
+         target="_blank" rel="noopener">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+    </li>
+    <li>
+      <a class="weibo"
+         href="http://service.weibo.com/share/share.php?url=https%3a%2f%2fRyanAdex.github.io%2fpost%2ffilemove%2f&amp;title=go%e8%af%ad%e8%a8%80%20os.Rename%28%29%20cannot%20move%20the%20file%20to%20a%20different%20disk%20drive%20%e6%80%8e%e4%b9%88%e5%8a%9e"
+         target="_blank" rel="noopener">
+        <i class="fab fa-weibo"></i>
+      </a>
+    </li>
+    <li>
+      <a class="email"
+         href="mailto:?subject=go%e8%af%ad%e8%a8%80%20os.Rename%28%29%20cannot%20move%20the%20file%20to%20a%20different%20disk%20drive%20%e6%80%8e%e4%b9%88%e5%8a%9e&amp;body=https%3a%2f%2fRyanAdex.github.io%2fpost%2ffilemove%2f">
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+  
+
+</div>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style" itemprop="articleBody">
+      <p>时值我小病在家休养生息，喜欢跳广场舞的外公来寻求我的帮助，他们跳广场舞是将存有歌曲的U盘插到音响上面，而音响大部分都是只能显示歌曲的索引<code>index</code>，不能直接显示歌曲名，所以为了方便他们会在U盘里面对歌曲进行排序。由于音响是寻址按顺序播放，意思就是在U盘里面的歌曲需要一首一首的按顺序复制过去，而且当对U盘歌曲进行增添的时候又需要按照顺序重新复制一遍，可以说相当麻烦。<strong>为了将我从这重复的劳动中解放出来</strong>，我用go语言写了一个小工具，本来想着分分钟写完，却没想到踩到了坑。
+在<code>os</code>包中有一个<code>Rename()</code>函数具有重命名和移动的功能，其函数如下：</p>
+
+<pre><code class="language-go">func Rename(oldpath, newpath string) error
+</code></pre>
+
+<p>Rename修改一个文件的名字，移动一个文件。可能会有一些个操作系统特定的限制。</p>
+
+<p>在windows系统下面使用该函数，<code>oldpath</code>和<code>newpath</code>在同一个磁盘/卷下面能正常使用，可我需要将音乐移动到U盘上，当使用这个函数的时候出现了：</p>
+
+<pre><code class="language-shell">The system cannot move the file to a different disk drive.
+</code></pre>
+
+<p>搜索<code>Github</code>的<a href="https://github.com/golang/go/issues/13766" target="_blank">issues</a>，发现Rename在windows中不能进行跨磁盘/卷操作。
+为了实现跨磁盘/卷操作，一种方法是直接调用<code>windows API</code>，于是在<a href="https://docs.microsoft.com/zh-cn/windows/desktop/api/winbase/nf-winbase-movefile" target="_blank">windows api docs</a>中搜索到<code>movefileex()</code>函数能够实现该功能，但是在go语言的<code>syscall</code>包中只有<code>movefile()</code>函数，其函数如下：</p>
+
+<pre><code class="language-go">func MoveFile(from *uint16, to *uint16) (err error)
+</code></pre>
+
+<p>实现文件移动的函数可以写成：</p>
+
+<pre><code class="language-go">func movefile(oldpath, newpath string) error { //跨卷移动
+    from, err := syscall.UTF16PtrFromString(oldpath)
+    if err != nil {
+        return err
+    }
+    to, err := syscall.UTF16PtrFromString(newpath)
+    if err != nil {
+        return err
+    }
+    return syscall.MoveFile(from, to)//windows API
+
+}
+</code></pre>
+
+<p>当我们读取<code>oldpath</code>目录里面的文件时调用<code>io/ioutil</code>包的<code>ReadDir()</code>函数可按照文件夹内的排序方式批量读入文件名，其函数实现如下：</p>
+
+<pre><code class="language-go">func filenamelist(filepath string) []string {
+    var list []string
+    rd, err := ioutil.ReadDir(filepath) //遍历目录
+    if err != nil {
+        log.Fatal(err)
+    }
+    for _, fi := range rd {
+        if fi.IsDir() {
+            fmt.Printf(&quot;[%s]is dir\n&quot;, fi.Name())
+
+        } else {
+            list = append(list, fi.Name())
+            fmt.Println(filepath + fi.Name())
+        }
+    }
+    return list//返回一个string数组
+
+}
+</code></pre>
+
+<p>当然也可以普通方式读入文件名然后用<code>sort</code>包进行排序。
+下面是完整代码：</p>
+
+<pre><code class="language-go">package main
+
+import (
+    &quot;fmt&quot;
+    &quot;io/ioutil&quot;
+    &quot;log&quot;
+    &quot;os&quot;
+    &quot;syscall&quot;
+)
+
+func movefile(oldpath, newpath string) error { //跨卷移动
+    from, err := syscall.UTF16PtrFromString(oldpath)
+    if err != nil {
+        return err
+    }
+    to, err := syscall.UTF16PtrFromString(newpath)
+    if err != nil {
+        return err
+    }
+    return syscall.MoveFile(from, to)//windows API
+
+}
+func filenamelist(filepath string) []string {
+    var list []string
+    rd, err := ioutil.ReadDir(filepath) //遍历目录
+    if err != nil {
+        log.Fatal(err)
+    }
+    for _, fi := range rd {
+        if fi.IsDir() {
+            fmt.Printf(&quot;[%s]is dir\n&quot;, fi.Name())
+
+        } else {
+            list = append(list, fi.Name())
+            fmt.Println(filepath + fi.Name())
+        }
+    }
+    return list
+
+}
+func movefilelist(oldpath, newpath string) {
+    for _, fi := range filenamelist(oldpath) { //移动目录的所有文件
+        err := movefile(oldpath+fi, newpath+fi)
+        if err != nil {
+            log.Fatal(err)
+        }
+        fmt.Println(fi + &quot;--Move To --&gt;&quot; + newpath + &quot;--OK!&quot;)
+
+    }
+}
+func main() {
+    movefilelist(os.Args[1], os.Args[2])
+}
+</code></pre>
+
+<p>最后在终端中：</p>
+
+<pre><code class="language-shell">Ryan@DESKTO MINGW64 /Go/test (master)
+$ go run main.go ~/Desktop/music/ /d/
+C:/Users/Ryan/Desktop/music/新建文本文档 (2).txt
+C:/Users/Ryan/Desktop/music/新建文本文档.txt
+新建文本文档 (2).txt--Move To --&gt;D:/--OK!
+新建文本文档.txt--Move To --&gt;D:/--OK!
+</code></pre>
+
+<p>有了这个脚本，我今后终于可以愉快的帮助我外公了。</p>
+
+<p><strong>转载请注明</strong></p>
+
+    </div>
+
+    
+
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tags/go/">go</a>
+  
+  <a class="badge badge-light" href="/tags/windows/">windows</a>
+  
+</div>
+
+
+
+    
+
+
+
+
+
+
+<div class="media author-card" itemscope itemtype="http://schema.org/Person">
+  
+  <img class="portrait mr-3" src="https://s.gravatar.com/avatar/b493fcabac7c264287d1cc64313d6eb2?s=200')" itemprop="image" alt="Avatar">
+  
+  <div class="media-body">
+    <h5 class="card-title" itemprop="name"><a href="/">Ryan</a></h5>
+    <h6 class="card-subtitle">Self Driving Car Engineer</h6>
+    
+    <ul class="network-icon" aria-hidden="true">
+      
+      
+      
+      
+        
+      
+      
+      
+      
+      
+      <li>
+        <a itemprop="sameAs" href="mailto:ryan-mask@outlook.com" >
+          <i class="fas fa-envelope"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+        
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="https://github.com/RyanAdex" target="_blank" rel="noopener">
+          <i class="fab fa-github"></i>
+        </a>
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+
+
+    
+    
+
+    
+    <div class="article-widget">
+      <div class="post-nav">
+  
+  
+</div>
+
+    </div>
+    
+
+    
+
+
+  </div>
+</article>
+
+<div class="container">
+  <footer class="site-footer">
+  
+
+  <p class="powered-by">
+    &copy; 2018 &middot; 
+    timeiord.github.io All Rights Reserved
+    
+
+    
+    <span class="float-right" aria-hidden="true">
+      <a href="#" id="back_to_top">
+        <span class="button_icon">
+          <i class="fas fa-chevron-up fa-2x"></i>
+        </span>
+      </a>
+    </span>
+    
+  </p>
+</footer>
+
+</div>
+
+
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">引用</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> 复制
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> 下载
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+    
+    
+    <script src="/js/mathjax-config.js"></script>
+    
+
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha512-+NqPlbbtM1QqiK8ZAo4Yrj2c4lNQoGv8P79DPtKzj++l5jnN39rHA/xsqn8zE9l0uSoxaCdrOgFs6yjyfbBxSg==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.3/imagesloaded.pkgd.min.js" integrity="sha512-umsR78NN0D23AzgoZ11K7raBD+R6hqKojyBZs1w8WvYlsI+QuKRGBx3LFCwhatzBunCjDuJpDHwxD13sLMbpRA==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.4/isotope.pkgd.min.js" integrity="sha512-VDBOIlDbuC4VWxGJNmuFRQ0Li0SKkDpmGyuhAG5LTDLd/dJ/S0WMVxriR2Y+CyPL5gzjpN4f/6iqWVBJlht0tQ==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" integrity="sha256-X5PoE3KU5l+JcX+w09p/wHl9AzK333C4hJ2I9S5mD4M=" crossorigin="anonymous"></script>
+
+      
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+        
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/go.min.js"></script>
+        
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/c&#43;&#43;.min.js"></script>
+        
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/c.min.js"></script>
+        
+      
+
+      
+      
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_CHTML-full" integrity="sha256-GhM+5JHb6QUzOQPXSJLEWP7R73CbkisjzK5Eyij4U9w=" crossorigin="anonymous" async></script>
+      
+    
+
+    
+    
+
+    
+    
+    
+
+    
+    
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    
+    
+    <script>
+      const search_index_filename = "/index.json";
+      const i18n = {
+        'placeholder': "搜索...",
+        'results': "搜索结果",
+        'no_results': "没有找到结果"
+      };
+      const content_type = {
+        'post': "文章",
+        'project': "项目",
+        'publication' : "出版物",
+        'talk' : "演讲"
+        };
+    </script>
+    
+
+    
+    
+
+    
+    
+    <script id="search-hit-fuse-template" type="text/x-template">
+      <div class="search-hit" id="summary-{{key}}">
+      <div class="search-hit-content">
+        <div class="search-hit-name">
+          <a href="{{relpermalink}}">{{title}}</a>
+          <div class="article-metadata search-hit-type">{{type}}</div>
+          <p class="search-hit-description">{{snippet}}</p>
+        </div>
+      </div>
+      </div>
+    </script>
+    
+
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js" integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    <script src="/js/academic.min.14cafafda844d960749b7551524d1c3a.js"></script>
+
+    
+
+  </body>
+</html>
+

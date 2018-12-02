@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>windows on Ryan&#39;s Blog</title>
+    <link>https://RyanAdex.github.io/tags/windows/</link>
+    <description>Recent content in windows on Ryan&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-Hans</language>
+    <copyright>&amp;copy; 2018</copyright>
+    <lastBuildDate>Wed, 28 Nov 2018 13:28:46 +0800</lastBuildDate>
+    
+	<atom:link href="https://RyanAdex.github.io/tags/windows/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>go语言 os.Rename() cannot move the file to a different disk drive 怎么办</title>
+      <link>https://RyanAdex.github.io/post/filemove/</link>
+      <pubDate>Wed, 28 Nov 2018 13:28:46 +0800</pubDate>
+      
+      <guid>https://RyanAdex.github.io/post/filemove/</guid>
+      <description>时值我小病在家休养生息，喜欢跳广场舞的外公来寻求我的帮助，他们跳广场舞是将存有歌曲的U盘插到音响上面，而音响大部分都是只能显示歌曲的索引in</description>
+    </item>
+    
+  </channel>
+</rss>
