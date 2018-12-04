@@ -11,11 +11,144 @@
     <atom:link href="/" rel="self" type="application/rss+xml" />
     
     <item>
+      <title>go语言带cookie的net客户端请求</title>
+      <link>https://RyanAdex.github.io/2018/12/04/htmlparse/</link>
+      <pubDate>Tue, 04 Dec 2018 20:29:47 +0800</pubDate>
+      
+      <guid>https://RyanAdex.github.io/2018/12/04/htmlparse/</guid>
+      <description>&lt;p&gt;前些日子参加了一个叫&lt;a href=&#34;https://adventofcode.com&#34; target=&#34;_blank&#34;&gt;Advent of Code&lt;/a&gt;的编程大赛，每天一道题，快活似神仙。这每道题都有自己的拼图数据输入&lt;code&gt;puzzle input&lt;/code&gt;，要做题就需要用到该数据，把数据复制过来感觉又太麻烦，于是就兴起写了一个直接从html读取数据的函数。
+其&lt;a href=&#34;https://adventofcode.com/2018/day/1/input&#34; target=&#34;_blank&#34;&gt;数据&lt;/a&gt;如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;+12
+-10
+-4
+-8
++18
+-1
+-13
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;查看标准库文档，发现&lt;code&gt;net/html&lt;/code&gt;包可以做这个功能，其函数如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;resp, err := http.Get(&amp;quot;http://example.com/&amp;quot;)
+if err != nil {
+    // handle error
+}
+defer resp.Body.Close()
+body, err := ioutil.ReadAll(resp.Body)
+// ...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;然后调试，但并未有相关数据输出，在浏览器中&lt;code&gt;检查元素&lt;/code&gt;发现该请求需要带&lt;code&gt;cookie&lt;/code&gt;才能正确返回数据。直接使用&lt;code&gt;http.Get()&lt;/code&gt;并不带有&lt;code&gt;cookie&lt;/code&gt;，所以改用&lt;code&gt;NewRequest&lt;/code&gt;使用指定的方法、网址和可选的主题创建并返回一个新的&lt;code&gt;*Request&lt;/code&gt;。其函数如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;client := &amp;amp;http.Client{}
+    req, err := http.NewRequest(&amp;quot;GET&amp;quot;, url, nil)
+    if err != nil {
+        log.Fatal(err)
+    }
+    req.Header.Set(&amp;quot;Cookie&amp;quot;, &amp;quot;name=value&amp;quot;)
+    resp, err := client.Do(req)
+
+    robots, err := ioutil.ReadAll(resp.Body)
+
+
+  resp.Body.Close()//必须要关闭Body
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;用&lt;code&gt;ioutil.ReadAll()&lt;/code&gt;返回的是&lt;code&gt;[]byte&lt;/code&gt;类型，入需要使用可以先将&lt;code&gt;[]byte&lt;/code&gt;转换成&lt;code&gt;string&lt;/code&gt;，Go语言初学者都会的类型转换语法：&lt;code&gt;string(b)&lt;/code&gt;，Go为了稳定性对于上述方法需要经过一些数据上的复制，一旦数据量过大，这个成本是难以忍受的。
+ 所以为了让Go服帖，我们得用上&lt;code&gt;unsafe&lt;/code&gt;包，&lt;code&gt;unsafe&lt;/code&gt;包提供一些可以跳过Go语言类型安全限制的操作。看下面代码：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;func BytesString(b []byte) string {
+    return *(*string)(unsafe.Pointer(&amp;amp;b))
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;我们取到&lt;code&gt;[]byte&lt;/code&gt;的指针，Go会说&lt;code&gt;*byte&lt;/code&gt;不是&lt;code&gt;*string&lt;/code&gt;，但是我们有外挂&lt;code&gt;unsafe.Pointer&lt;/code&gt;，所以Go就通过了，接着你很自在的把&lt;code&gt;*byte&lt;/code&gt;转成了&lt;code&gt;*string&lt;/code&gt;，因为&lt;code&gt;reflect.StringHeader&lt;/code&gt;和&lt;code&gt;reflect.SliceHeader&lt;/code&gt;的结构体只相差末尾一个字段。
+ 类似的用法可以看&lt;a href=&#34;https://zhuanlan.zhihu.com/p/20010926&#34; target=&#34;_blank&#34;&gt;Go语言黑魔法&lt;/a&gt;
+ 接着用&lt;code&gt;regexp&lt;/code&gt;包正则表达式&lt;code&gt;FindAllString&lt;/code&gt;取出匹配的&lt;code&gt;[]string&lt;/code&gt;数据使用，然后再用&lt;code&gt;strconv.Atoi()&lt;/code&gt;进行转化就可以了。
+ Day1的题为求和，其代码如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;package main
+
+import (
+    &amp;quot;fmt&amp;quot;
+    &amp;quot;io/ioutil&amp;quot;
+    &amp;quot;log&amp;quot;
+    &amp;quot;net/http&amp;quot;
+    &amp;quot;os&amp;quot;
+    &amp;quot;regexp&amp;quot;
+    &amp;quot;strconv&amp;quot;
+    &amp;quot;unsafe&amp;quot;
+)
+
+func BytesString(b []byte) string {//[]byte 转string
+    return *(*string)(unsafe.Pointer(&amp;amp;b))
+}
+
+func getPuzzle(url string) string {//从网页抓取数据
+    client := &amp;amp;http.Client{}
+    req, err := http.NewRequest(&amp;quot;GET&amp;quot;, url, nil)
+    if err != nil {
+        log.Fatal(err)
+    }
+    req.Header.Set(&amp;quot;Cookie&amp;quot;, &amp;quot;session=53616c74...&amp;quot;)
+    resp, err := client.Do(req)
+
+    robots, err := ioutil.ReadAll(resp.Body)
+    // robots := bufio.NewReader(resp.Body)
+
+    resp.Body.Close()
+    str := BytesString(robots)
+    // fmt.Printf(&amp;quot;%q&amp;quot;, str)
+    return str
+    // io.Copy(os.Stdout, resp.Body)
+}
+func sum(num []int) int {
+    sum := 0
+    for _, n := range num {
+        sum += n
+    }
+    return sum
+}
+func strtoint(str []string) []int {//string转int
+    num := make([]int, len(str))
+    for i := 0; i &amp;lt; len(str); i++ {
+        flag := str[i][0]
+        chafre, _ := strconv.Atoi(str[i][1:])
+        switch flag {
+        case &#39;+&#39;:
+            num[i] = chafre
+        case &#39;-&#39;:
+            num[i] = -chafre
+        }
+    }
+    return num
+}
+func main() {
+    change := getPuzzle(&amp;quot;https://adventofcode.com/2018/day/1/input&amp;quot;)
+    re := regexp.MustCompile(&amp;quot;[+|-][0-9]*&amp;quot;)//正则表达式
+    str := re.FindAllString(change, -1)
+
+    num := strtoint(str)
+
+    sum := sum(num)
+    fmt.Printf(&amp;quot;sum is %d\n&amp;quot;, sum)
+
+
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如果有更好的方法，欢迎私信，哈哈哈···&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
       <title>go语言 os.Rename() cannot move the file to a different disk drive 怎么办</title>
-      <link>https://RyanAdex.github.io/post/filemove/</link>
+      <link>https://RyanAdex.github.io/2018/11/28/filemove/</link>
       <pubDate>Wed, 28 Nov 2018 13:28:46 +0800</pubDate>
       
-      <guid>https://RyanAdex.github.io/post/filemove/</guid>
+      <guid>https://RyanAdex.github.io/2018/11/28/filemove/</guid>
       <description>&lt;p&gt;时值我小病在家休养生息，喜欢跳广场舞的外公来寻求我的帮助，他们跳广场舞是将存有歌曲的U盘插到音响上面，而音响大部分都是只能显示歌曲的索引&lt;code&gt;index&lt;/code&gt;，不能直接显示歌曲名，所以为了方便他们会在U盘里面对歌曲进行排序。由于音响是寻址按顺序播放，意思就是在U盘里面的歌曲需要一首一首的按顺序复制过去，而且当对U盘歌曲进行增添的时候又需要按照顺序重新复制一遍，可以说相当麻烦。&lt;strong&gt;为了将我从这重复的劳动中解放出来&lt;/strong&gt;，我用go语言写了一个小工具，本来想着分分钟写完，却没想到踩到了坑。
 在&lt;code&gt;os&lt;/code&gt;包中有一个&lt;code&gt;Rename()&lt;/code&gt;函数具有重命名和移动的功能，其函数如下：&lt;/p&gt;
 
