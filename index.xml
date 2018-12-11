@@ -11,7 +11,242 @@
     <atom:link href="/" rel="self" type="application/rss+xml" />
     
     <item>
-      <title>go语言带cookie的net客户端请求</title>
+      <title>LeetCode 队列与BFS--岛屿的数量</title>
+      <link>https://RyanAdex.github.io/2018/12/09/queue/</link>
+      <pubDate>Sun, 09 Dec 2018 20:29:13 +0800</pubDate>
+      
+      <guid>https://RyanAdex.github.io/2018/12/09/queue/</guid>
+      <description>
+
+&lt;h1 id=&#34;岛屿的个数&#34;&gt;岛屿的个数&lt;/h1&gt;
+
+&lt;p&gt;给定一个由 &amp;lsquo;1&amp;rsquo;（陆地）和 &amp;lsquo;0&amp;rsquo;（水）组成的的二维网格，计算岛屿的数量。一个岛被水包围，并且它是通过水平方向或垂直方向上相邻的陆地连接而成的。你可以假设网格的四个边均被水包围。
+示例1：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;输入:
+11110
+11010
+11000
+00000
+
+输出: 1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;示例2：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;输入:
+11000
+11000
+00100
+00011
+
+输出: 3
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;分析&#34;&gt;分析&lt;/h1&gt;
+
+&lt;p&gt;这道题的解法有很多，但本帖用广度优先搜索&lt;code&gt;BFS&lt;/code&gt;来解答。
+本题输入是一个二维数组，判断一个岛屿的要素是判断是否该陆地（1）&lt;code&gt;上下左右&lt;/code&gt;是否被水（0）包围，也就是说，岛屿的数量=联通陆地（1）的数量。
+&lt;code&gt;BFS&lt;/code&gt;算法题解如下，通过找到为岛（1）的初始点，然后对临近的岛屿进行依次访问，利用队列对访问的岛屿进行储存，如下列图示:
+````
+  +&amp;mdash;&amp;ndash;&amp;gt;
+ +-+
+++1|1 1 1 0
++&amp;ndash;+
+| 1 1 0 1 0
+|
+v 1 1 0 0 0&lt;/p&gt;
+
+&lt;p&gt;0 0 0 0 0&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;当找到初始（1）的时候，将其坐标入队，依据队列的`FIFO`特性，从队列中取出坐标，对其坐标的`上下左右`元素进行访问，如果临近的元素为陆地（1），则将其坐标加入队列中等待访问，如果该元素已经被访问，则跳过，重复这一过程，直到队列为空，说明元素周围再也没有陆地，便可看作岛屿。访问过的（1）认为的变为（0）便于后续对未访问的陆地进行查找,岛屿的数量就等于队列为空的遍历次数。其代码如下：
+## C++实现
+```cpp
+class Solution {
+private:
+        queue&amp;lt;int&amp;gt; que;
+        int count=0;
+
+        int x=0;
+        int y=0;
+        int xx=0;
+        int yy=0;
+public:
+    int numIslands(vector&amp;lt;vector&amp;lt;char&amp;gt;&amp;gt;&amp;amp; grid) {
+        int rows=grid.size();
+        int cols=rows&amp;gt;0?grid[0].size():0;
+        int dx[]={-1,0,1,0};
+        int dy[]={0,1,0,-1};
+        if(rows==0||cols==0){
+            return 0;
+        }
+        for(int i=0;i&amp;lt;rows;i++){
+            for(int j=0;j&amp;lt;cols;j++){
+                //cout&amp;lt;&amp;lt;rows&amp;lt;&amp;lt;cols&amp;lt;&amp;lt;endl;//外部两个for循环为从上到下从左到右寻找未访问的陆地，因为访问过的陆地都已经被置零
+                if(grid[i][j]==&#39;1&#39;){
+                    que.push(i);
+                    que.push(j); 
+                    grid[i][j]=&#39;0&#39;;
+                    while(!que.empty()){
+                        x=que.front();
+                        que.pop();
+                        y=que.front();
+                        que.pop();
+                        for(int k=0;k&amp;lt;4;k++){
+                            xx=x+dx[k];
+                            yy=y+dy[k];
+                            if(xx&amp;lt;0||xx&amp;gt;=rows||yy&amp;lt;0||yy&amp;gt;=cols){
+                                continue;
+                            }
+                        
+                            if(grid[xx][yy]==&#39;1&#39;){
+                                grid[xx][yy]=&#39;0&#39;;
+                                que.push(xx);
+                                que.push(yy);
+                            }
+                        }
+                    }
+                    count++;//队列为空的次数=岛屿的数量
+                }
+            }
+        }
+
+        return count;
+    }
+
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;go实现&#34;&gt;Go实现&lt;/h2&gt;
+
+&lt;p&gt;由于go语言没有队列&lt;code&gt;queue&lt;/code&gt;包，我们自己建一个：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;package queue
+
+//Item any type&#39;s item
+type Item interface {
+}
+
+//ItemQueue is store items
+type ItemQueue struct {
+    items []Item
+}
+
+//ItemQueuer is a interface
+type ItemQueuer interface {
+    New() ItemQueue
+    Push(t Item)
+    Pop() *Item
+    Empty() bool
+    Size() int
+}
+
+//Push a new item
+func (s *ItemQueue) Push(t Item) {
+    s.items = append(s.items, t)
+}
+
+//Pop a front item
+func (s *ItemQueue) Pop() {
+    s.items = s.items[1:]
+}
+
+//Empty of items
+func (s *ItemQueue) Empty() bool {
+    return len(s.items) == 0
+}
+
+//Size of items
+func (s *ItemQueue) Size() int {
+    return len(s.items)
+}
+
+//Front of items
+func (s *ItemQueue) Front() Item {
+    return s.items[0]
+}
+
+//Back of items
+func (s *ItemQueue) Back() Item {
+    return s.items[len(s.items)-1]
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;我们用接口实现了类似&lt;code&gt;C++&lt;/code&gt;泛型的&lt;code&gt;queue&lt;/code&gt;类，下面是&lt;code&gt;go语言&lt;/code&gt;实现：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;package main
+
+import (
+    &amp;quot;fmt&amp;quot;
+    &amp;quot;self/queue&amp;quot;
+    &amp;quot;time&amp;quot;
+)
+
+var que queue.ItemQueue//生命一个队列变量
+
+var m = [][]byte{
+    {&#39;1&#39;, &#39;1&#39;, &#39;0&#39;, &#39;1&#39;, &#39;0&#39;},
+    {&#39;1&#39;, &#39;1&#39;, &#39;0&#39;, &#39;1&#39;, &#39;0&#39;},
+    {&#39;1&#39;, &#39;1&#39;, &#39;0&#39;, &#39;1&#39;, &#39;1&#39;},
+    {&#39;0&#39;, &#39;0&#39;, &#39;1&#39;, &#39;1&#39;, &#39;0&#39;},
+}
+
+func main() {
+    start := time.Now()
+    coun := numIslands(m)
+    fmt.Printf(&amp;quot;the num of isl is %v&amp;quot;, coun)
+    cost := time.Since(start)
+    fmt.Printf(&amp;quot;Cost %s&amp;quot;, cost)
+}
+func numIslands(grid [][]byte) int {
+    var que queue.ItemQueue
+    var x, y, xx, yy, count, rows, cols int = 0, 0, 0, 0, 0, 0, 0
+    rows = len(grid)
+    if rows &amp;gt; 0 {
+        cols = len(grid[0])
+    } else {
+        cols = 0
+    }
+    var dx, dy = []int{-1, 0, 1, 0}, []int{0, 1, 0, -1}
+    if rows == 0 || cols == 0 {
+        return 0
+    }
+    for i := 0; i &amp;lt; rows; i++ {
+        for j := 0; j &amp;lt; cols; j++ {
+            if grid[i][j] == &#39;1&#39; {
+                que.Push(i)
+                que.Push(j)
+                grid[i][j] = &#39;0&#39;
+                for !que.Empty() {
+                    x = que.Front().(int)//因为储存的是坐标，所以是int，这里要强制转化，因为que.Front()返回的是interface{}类型
+                    que.Pop()
+                    y = que.Front().(int)
+                    que.Pop()
+                    for k := 0; k &amp;lt; 4; k++ {
+                        xx = x + dx[k]
+                        yy = y + dy[k]
+                        if xx &amp;lt; 0 || xx &amp;gt;= rows || yy &amp;lt; 0 || yy &amp;gt;= cols {
+                            continue
+                        }
+                        if grid[xx][yy] == &#39;1&#39; {
+                            grid[xx][yy] = &#39;0&#39;
+                            que.Push(xx)
+                            que.Push(yy)
+                        }
+                    }
+                }
+                count++
+            }
+        }
+    }
+    return count
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>go语言带cookie的net客户端请求ii与[]byte转string</title>
       <link>https://RyanAdex.github.io/2018/12/04/htmlparse/</link>
       <pubDate>Tue, 04 Dec 2018 20:29:47 +0800</pubDate>
       

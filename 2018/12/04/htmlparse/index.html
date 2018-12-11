@@ -90,7 +90,7 @@
   
   <meta property="og:site_name" content="Ryan&#39;s Blog">
   <meta property="og:url" content="https://RyanAdex.github.io/2018/12/04/htmlparse/">
-  <meta property="og:title" content="go语言带cookie的net客户端请求 | Ryan&#39;s Blog">
+  <meta property="og:title" content="go语言带cookie的net客户端请求ii与[]byte转string | Ryan&#39;s Blog">
   <meta property="og:description" content="前些日子参加了一个叫Advent of Code的编程大赛，每天一道题，快活似神仙。这每道题都有自己的拼图数据输入puzzle input，要做题就">
   
   
@@ -107,7 +107,7 @@
 
   
 
-  <title>go语言带cookie的net客户端请求 | Ryan&#39;s Blog</title>
+  <title>go语言带cookie的net客户端请求ii与[]byte转string | Ryan&#39;s Blog</title>
 
 </head>
 <body id="top" data-spy="scroll" data-target="#TableOfContents" data-offset="71" >
@@ -238,7 +238,7 @@
   
   
 <div class="article-container pt-3">
-  <h1 itemprop="name">go语言带cookie的net客户端请求</h1>
+  <h1 itemprop="name">go语言带cookie的net客户端请求ii与[]byte转string</h1>
 
   
 
@@ -283,7 +283,7 @@
   <ul class="share">
     <li>
       <a class="twitter"
-         href="https://twitter.com/intent/tweet?text=go%e8%af%ad%e8%a8%80%e5%b8%a6cookie%e7%9a%84net%e5%ae%a2%e6%88%b7%e7%ab%af%e8%af%b7%e6%b1%82&amp;url=https%3a%2f%2fRyanAdex.github.io%2f2018%2f12%2f04%2fhtmlparse%2f"
+         href="https://twitter.com/intent/tweet?text=go%e8%af%ad%e8%a8%80%e5%b8%a6cookie%e7%9a%84net%e5%ae%a2%e6%88%b7%e7%ab%af%e8%af%b7%e6%b1%82ii%e4%b8%8e%5b%5dbyte%e8%bd%acstring&amp;url=https%3a%2f%2fRyanAdex.github.io%2f2018%2f12%2f04%2fhtmlparse%2f"
          target="_blank" rel="noopener">
         <i class="fab fa-twitter"></i>
       </a>
@@ -297,21 +297,21 @@
     </li>
     <li>
       <a class="linkedin"
-         href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fRyanAdex.github.io%2f2018%2f12%2f04%2fhtmlparse%2f&amp;title=go%e8%af%ad%e8%a8%80%e5%b8%a6cookie%e7%9a%84net%e5%ae%a2%e6%88%b7%e7%ab%af%e8%af%b7%e6%b1%82"
+         href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fRyanAdex.github.io%2f2018%2f12%2f04%2fhtmlparse%2f&amp;title=go%e8%af%ad%e8%a8%80%e5%b8%a6cookie%e7%9a%84net%e5%ae%a2%e6%88%b7%e7%ab%af%e8%af%b7%e6%b1%82ii%e4%b8%8e%5b%5dbyte%e8%bd%acstring"
          target="_blank" rel="noopener">
         <i class="fab fa-linkedin-in"></i>
       </a>
     </li>
     <li>
       <a class="weibo"
-         href="http://service.weibo.com/share/share.php?url=https%3a%2f%2fRyanAdex.github.io%2f2018%2f12%2f04%2fhtmlparse%2f&amp;title=go%e8%af%ad%e8%a8%80%e5%b8%a6cookie%e7%9a%84net%e5%ae%a2%e6%88%b7%e7%ab%af%e8%af%b7%e6%b1%82"
+         href="http://service.weibo.com/share/share.php?url=https%3a%2f%2fRyanAdex.github.io%2f2018%2f12%2f04%2fhtmlparse%2f&amp;title=go%e8%af%ad%e8%a8%80%e5%b8%a6cookie%e7%9a%84net%e5%ae%a2%e6%88%b7%e7%ab%af%e8%af%b7%e6%b1%82ii%e4%b8%8e%5b%5dbyte%e8%bd%acstring"
          target="_blank" rel="noopener">
         <i class="fab fa-weibo"></i>
       </a>
     </li>
     <li>
       <a class="email"
-         href="mailto:?subject=go%e8%af%ad%e8%a8%80%e5%b8%a6cookie%e7%9a%84net%e5%ae%a2%e6%88%b7%e7%ab%af%e8%af%b7%e6%b1%82&amp;body=https%3a%2f%2fRyanAdex.github.io%2f2018%2f12%2f04%2fhtmlparse%2f">
+         href="mailto:?subject=go%e8%af%ad%e8%a8%80%e5%b8%a6cookie%e7%9a%84net%e5%ae%a2%e6%88%b7%e7%ab%af%e8%af%b7%e6%b1%82ii%e4%b8%8e%5b%5dbyte%e8%bd%acstring&amp;body=https%3a%2f%2fRyanAdex.github.io%2f2018%2f12%2f04%2fhtmlparse%2f">
         <i class="fas fa-envelope"></i>
       </a>
     </li>
@@ -563,6 +563,11 @@ func main() {
     
     <div class="article-widget">
       <div class="post-nav">
+  
+  <div class="post-nav-item">
+    <div class="meta-nav">下一页</div>
+    <a href="https://RyanAdex.github.io/2018/12/09/queue/" rel="next">LeetCode 队列与BFS--岛屿的数量</a>
+  </div>
   
   
   <div class="post-nav-item">
