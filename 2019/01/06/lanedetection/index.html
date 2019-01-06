@@ -15,7 +15,7 @@
   
     
   
-  <meta name="description" content="#forkongithub a{background:#000;color:#fff;text-decoration:none;font-family:arial,sans-serif;text-align:center;font-weight:bold;padding:5px 40px;font-size:0.6rem;line-height:1rem;position:relative;transition:0.5s;}#forkongithub a:hover{background:#c11;color:#fff;}#forkongithub a::before,#forkongithub a::after{content:&ldquo;&rdquo;;width:100%;display:block;position:absolute;top:10px;left:0;height:1px;background:#fff;}#forkongithub a::after{bottom:1px;top:auto;}@media screen and (min-width:800px){#forkongithub{position:fixed;display:block;top:0;left:0;width:200px;overflow:hidden;height:200px;z-index:9999;}#forkongithub a{width:200px;position:absolute;top:80px;left:0px;transform:rotate(0deg);-webkit-transform:rotate(0deg);-ms-transform:rotate(0deg);-moz-transform:rotate(0deg);-o-transform:rotate(0deg);box-shadow:4px 4px 10px rgba(0,0,0,0.8);}}Fork me on GitHub 车道检测(Advanced Lane Finding Project) 实现步骤: 使用提供的一组棋盘格图片计算相机校正矩阵(camera calibration matr">
+  <meta name="description" content="车道检测(Advanced Lane Finding Project) 实现步骤: 使用提供的一组棋盘格图片计算相机校正矩阵(camera calibration matrix)和失真系数(distorti">
 
   
   <link rel="alternate" hreflang="zh-Hans" href="https://RyanAdex.github.io/2019/01/06/lanedetection/">
@@ -91,7 +91,7 @@
   <meta property="og:site_name" content="Ryan&#39;s Blog">
   <meta property="og:url" content="https://RyanAdex.github.io/2019/01/06/lanedetection/">
   <meta property="og:title" content="车道线检测/Opencv/传统方法 | Ryan&#39;s Blog">
-  <meta property="og:description" content="#forkongithub a{background:#000;color:#fff;text-decoration:none;font-family:arial,sans-serif;text-align:center;font-weight:bold;padding:5px 40px;font-size:0.6rem;line-height:1rem;position:relative;transition:0.5s;}#forkongithub a:hover{background:#c11;color:#fff;}#forkongithub a::before,#forkongithub a::after{content:&ldquo;&rdquo;;width:100%;display:block;position:absolute;top:10px;left:0;height:1px;background:#fff;}#forkongithub a::after{bottom:1px;top:auto;}@media screen and (min-width:800px){#forkongithub{position:fixed;display:block;top:0;left:0;width:200px;overflow:hidden;height:200px;z-index:9999;}#forkongithub a{width:200px;position:absolute;top:80px;left:0px;transform:rotate(0deg);-webkit-transform:rotate(0deg);-ms-transform:rotate(0deg);-moz-transform:rotate(0deg);-o-transform:rotate(0deg);box-shadow:4px 4px 10px rgba(0,0,0,0.8);}}Fork me on GitHub 车道检测(Advanced Lane Finding Project) 实现步骤: 使用提供的一组棋盘格图片计算相机校正矩阵(camera calibration matr">
+  <meta property="og:description" content="车道检测(Advanced Lane Finding Project) 实现步骤: 使用提供的一组棋盘格图片计算相机校正矩阵(camera calibration matrix)和失真系数(distorti">
   
   
     
@@ -349,8 +349,6 @@
     <div class="article-style" itemprop="articleBody">
       
 
-<p><style>#forkongithub a{background:#000;color:#fff;text-decoration:none;font-family:arial,sans-serif;text-align:center;font-weight:bold;padding:5px 40px;font-size:0.6rem;line-height:1rem;position:relative;transition:0.5s;}#forkongithub a:hover{background:#c11;color:#fff;}#forkongithub a::before,#forkongithub a::after{content:&ldquo;&rdquo;;width:100%;display:block;position:absolute;top:10px;left:0;height:1px;background:#fff;}#forkongithub a::after{bottom:1px;top:auto;}@media screen and (min-width:800px){#forkongithub{position:fixed;display:block;top:0;left:0;width:200px;overflow:hidden;height:200px;z-index:9999;}#forkongithub a{width:200px;position:absolute;top:80px;left:0px;transform:rotate(0deg);-webkit-transform:rotate(0deg);-ms-transform:rotate(0deg);-moz-transform:rotate(0deg);-o-transform:rotate(0deg);box-shadow:4px 4px 10px rgba(0,0,0,0.8);}}</style><span id="forkongithub"><a href="https://github.com/RyanAdex/CarND-Advanced-Lane-Lines">Fork me on GitHub</a></span></p>
-
 <h2 id="车道检测-advanced-lane-finding-project"><strong>车道检测(Advanced Lane Finding Project)</strong></h2>
 
 <p>实现步骤:</p>
@@ -364,6 +362,8 @@
 <li>计算车道曲率及车辆相对车道中央的位置.</li>
 <li>处理图片展示车道区域，及车道的曲率和车辆位置.</li>
 </ul>
+
+<p><style>#forkongithub a{background:#000;color:#fff;text-decoration:none;font-family:arial,sans-serif;text-align:center;font-weight:bold;padding:5px 40px;font-size:0.6rem;line-height:1rem;position:relative;transition:0.5s;}#forkongithub a:hover{background:#c11;color:#fff;}#forkongithub a::before,#forkongithub a::after{content:&ldquo;&rdquo;;width:100%;display:block;position:absolute;top:10px;left:0;height:1px;background:#fff;}#forkongithub a::after{bottom:1px;top:auto;}@media screen and (min-width:800px){#forkongithub{position:fixed;display:block;top:0;left:0;width:200px;overflow:hidden;height:200px;z-index:9999;}#forkongithub a{width:200px;position:absolute;top:80px;left:0px;transform:rotate(0deg);-webkit-transform:rotate(0deg);-ms-transform:rotate(0deg);-moz-transform:rotate(0deg);-o-transform:rotate(0deg);box-shadow:4px 4px 10px rgba(0,0,0,0.8);}}</style><span id="forkongithub"><a href="https://github.com/RyanAdex/CarND-Advanced-Lane-Lines">Fork me on GitHub</a></span></p>
 
 <h4 id="相机校正-camera-calibration">相机校正(Camera Calibration)</h4>
 
@@ -739,8 +739,6 @@ imgout=(absm&amp;mag&amp;luv)|(hls&amp;luv);
 
 <div class="article-tags">
   
-  <a class="badge badge-light" href="/tags/go/">Go</a>
-  
   <a class="badge badge-light" href="/tags/c&#43;&#43;/">C&#43;&#43;</a>
   
   <a class="badge badge-light" href="/tags/lane_detection/">Lane_detection</a>
@@ -816,10 +814,6 @@ imgout=(absm&amp;mag&amp;luv)|(hls&amp;luv);
         
         <li><a href="/2018/12/09/queue/">LeetCode 队列与BFS--岛屿的数量</a></li>
         
-        <li><a href="/2018/12/04/htmlparse/">go语言带cookie的net客户端请求ii与[]byte转string</a></li>
-        
-        <li><a href="/2018/11/28/filemove/">go语言 os.Rename() cannot move the file to a different disk drive 怎么办</a></li>
-        
       </ul>
     </div>
     
@@ -869,7 +863,7 @@ gitalk.render('gitalk-container')
 
   <p class="powered-by">
     &copy; 2018 &middot; 
-    timeiord.github.io All Rights Reserved
+    RyanAdex.github.io All Rights Reserved
     
 
     

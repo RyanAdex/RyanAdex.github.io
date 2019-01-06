@@ -18,8 +18,6 @@
       <guid>https://RyanAdex.github.io/2019/01/06/lanedetection/</guid>
       <description>
 
-&lt;p&gt;&lt;style&gt;#forkongithub a{background:#000;color:#fff;text-decoration:none;font-family:arial,sans-serif;text-align:center;font-weight:bold;padding:5px 40px;font-size:0.6rem;line-height:1rem;position:relative;transition:0.5s;}#forkongithub a:hover{background:#c11;color:#fff;}#forkongithub a::before,#forkongithub a::after{content:&amp;ldquo;&amp;rdquo;;width:100%;display:block;position:absolute;top:10px;left:0;height:1px;background:#fff;}#forkongithub a::after{bottom:1px;top:auto;}@media screen and (min-width:800px){#forkongithub{position:fixed;display:block;top:0;left:0;width:200px;overflow:hidden;height:200px;z-index:9999;}#forkongithub a{width:200px;position:absolute;top:80px;left:0px;transform:rotate(0deg);-webkit-transform:rotate(0deg);-ms-transform:rotate(0deg);-moz-transform:rotate(0deg);-o-transform:rotate(0deg);box-shadow:4px 4px 10px rgba(0,0,0,0.8);}}&lt;/style&gt;&lt;span id=&#34;forkongithub&#34;&gt;&lt;a href=&#34;https://github.com/RyanAdex/CarND-Advanced-Lane-Lines&#34;&gt;Fork me on GitHub&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
-
 &lt;h2 id=&#34;车道检测-advanced-lane-finding-project&#34;&gt;&lt;strong&gt;车道检测(Advanced Lane Finding Project)&lt;/strong&gt;&lt;/h2&gt;
 
 &lt;p&gt;实现步骤:&lt;/p&gt;
@@ -33,6 +31,8 @@
 &lt;li&gt;计算车道曲率及车辆相对车道中央的位置.&lt;/li&gt;
 &lt;li&gt;处理图片展示车道区域，及车道的曲率和车辆位置.&lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;p&gt;&lt;style&gt;#forkongithub a{background:#000;color:#fff;text-decoration:none;font-family:arial,sans-serif;text-align:center;font-weight:bold;padding:5px 40px;font-size:0.6rem;line-height:1rem;position:relative;transition:0.5s;}#forkongithub a:hover{background:#c11;color:#fff;}#forkongithub a::before,#forkongithub a::after{content:&amp;ldquo;&amp;rdquo;;width:100%;display:block;position:absolute;top:10px;left:0;height:1px;background:#fff;}#forkongithub a::after{bottom:1px;top:auto;}@media screen and (min-width:800px){#forkongithub{position:fixed;display:block;top:0;left:0;width:200px;overflow:hidden;height:200px;z-index:9999;}#forkongithub a{width:200px;position:absolute;top:80px;left:0px;transform:rotate(0deg);-webkit-transform:rotate(0deg);-ms-transform:rotate(0deg);-moz-transform:rotate(0deg);-o-transform:rotate(0deg);box-shadow:4px 4px 10px rgba(0,0,0,0.8);}}&lt;/style&gt;&lt;span id=&#34;forkongithub&#34;&gt;&lt;a href=&#34;https://github.com/RyanAdex/CarND-Advanced-Lane-Lines&#34;&gt;Fork me on GitHub&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
 
 &lt;h4 id=&#34;相机校正-camera-calibration&#34;&gt;相机校正(Camera Calibration)&lt;/h4&gt;
 
