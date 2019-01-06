@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-Hans</language>
     <copyright>&amp;copy; 2018</copyright>
-    <lastBuildDate>Sun, 09 Dec 2018 20:29:13 +0800</lastBuildDate>
+    <lastBuildDate>Sun, 06 Jan 2019 16:18:16 +0800</lastBuildDate>
     
 	<atom:link href="https://RyanAdex.github.io/tags/go/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>车道线检测/Opencv/传统方法</title>
+      <link>https://RyanAdex.github.io/2019/01/06/lanedetection/</link>
+      <pubDate>Sun, 06 Jan 2019 16:18:16 +0800</pubDate>
+      
+      <guid>https://RyanAdex.github.io/2019/01/06/lanedetection/</guid>
+      <description>车道检测(Advanced Lane Finding Project) 实现步骤: 使用提供的一组棋盘格图片计算相机校正矩阵(camera calibration matrix)和失真系数(distorti</description>
+    </item>
     
     <item>
       <title>LeetCode 队列与BFS--岛屿的数量</title>

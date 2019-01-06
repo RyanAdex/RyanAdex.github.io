@@ -11,6 +11,399 @@
     <atom:link href="/" rel="self" type="application/rss+xml" />
     
     <item>
+      <title>车道线检测/Opencv/传统方法</title>
+      <link>https://RyanAdex.github.io/2019/01/06/lanedetection/</link>
+      <pubDate>Sun, 06 Jan 2019 16:18:16 +0800</pubDate>
+      
+      <guid>https://RyanAdex.github.io/2019/01/06/lanedetection/</guid>
+      <description>
+
+&lt;h2 id=&#34;车道检测-advanced-lane-finding-project&#34;&gt;&lt;strong&gt;车道检测(Advanced Lane Finding Project)&lt;/strong&gt;&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.udacity.com/drive&#34; target=&#34;_blank&#34;&gt;&lt;img src=&#34;https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg&#34; alt=&#34;Udacity - Self-Driving Car NanoDegree&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;实现步骤:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;使用提供的一组棋盘格图片计算相机校正矩阵(camera calibration matrix)和失真系数(distortion coefficients).&lt;/li&gt;
+&lt;li&gt;校正图片&lt;/li&gt;
+&lt;li&gt;使用梯度阈值(gradient threshold)，颜色阈值(color threshold)等处理图片得到清晰捕捉车道线的二进制图(binary image).&lt;/li&gt;
+&lt;li&gt;使用透视变换(perspective transform)得到二进制图(binary image)的鸟瞰图(birds-eye view).&lt;/li&gt;
+&lt;li&gt;检测属于车道线的像素并用它来测出车道边界.&lt;/li&gt;
+&lt;li&gt;计算车道曲率及车辆相对车道中央的位置.&lt;/li&gt;
+&lt;li&gt;处理图片展示车道区域，及车道的曲率和车辆位置.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&#34;相机校正-camera-calibration&#34;&gt;相机校正(Camera Calibration)&lt;/h4&gt;
+
+&lt;p&gt;这里会使用opencv提供的方法通过棋盘格图片组计算相机校正矩阵(camera calibration matrix)和失真系数(distortion coefficients)。首先要得到棋盘格内角的世界坐标&amp;rdquo;object points&amp;rdquo;和对应图片坐标&amp;rdquo;image point&amp;rdquo;。假设棋盘格内角世界坐标的z轴为0，棋盘在(x,y)面上，则对于每张棋盘格图片组的图片而言，对应&amp;rdquo;object points&amp;rdquo;都是一样的。而通过使用openCv的cv::findChessboardCorners()，传入棋盘格的灰度(grayscale)图片和横纵内角点个数就可得到图片内角的&amp;rdquo;image point&amp;rdquo;。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+void get_obj_img_points(const vector&amp;lt;string&amp;gt; &amp;amp; images,const cv::Size &amp;amp; grid,const cv::Size&amp;amp; distance,cv::Mat&amp;amp; cameraMatirx,cv::Mat&amp;amp; distCoeffs){
+    cv::Mat img,gray;//灰度图像
+    vector&amp;lt;cv::Point2f&amp;gt; corners;//用来储存t图片角点
+    vector&amp;lt;cv::Point3f&amp;gt; object_point;//保存标定板上所有角点坐标
+    vector&amp;lt;cv::Mat&amp;gt; rvecs,tvecs;//旋转向量和位移向量
+    vector&amp;lt;vector&amp;lt;cv::Point3f&amp;gt;&amp;gt; object_points;//棋盘格三维坐标容器
+    vector&amp;lt;vector&amp;lt;cv::Point2f&amp;gt;&amp;gt; img_points;//棋盘格角点容器
+    for(auto &amp;amp; imgdir:images){
+        //载入图像
+        img=cv::imread(imgdir);
+        //生成object points
+        for(int i=0;i&amp;lt;grid.height;i++){
+            for(int j=0;j&amp;lt;grid.width;j++){
+                object_point.push_back(cv::Point3f(i*distance.width,j*distance.height,0));//向容器存入每个角点坐标
+            }
+        }
+        //得到灰度图片
+        cv::cvtColor(img,gray,cv::COLOR_BGR2GRAY);
+        //得到图片的image points
+        //NOTE corners的储存方式为从左往右，从上往下每行储存，所以储存object_point的时候需从grid。width开始遍历储存
+        bool ret=cv::findChessboardCorners(gray,grid,corners,cv::CALIB_CB_ADAPTIVE_THRESH+cv::CALIB_CB_NORMALIZE_IMAGE+cv::CALIB_CB_FAST_CHECK);
+        if(ret){//亚像素精细化
+            cv::cornerSubPix(gray,corners,cv::Size(11,11),cv::Size(-1,-1),
+            cv::TermCriteria(cv::TermCriteria::COUNT+cv::TermCriteria::EPS, 30, 0.1));
+            img_points.push_back(corners);
+            object_points.push_back(object_point);
+        }
+        object_point.clear();//清空object_point以便下一幅图使用该容器
+        //绘制角点并显示
+        cv::drawChessboardCorners(img,grid,cv::Mat(corners),ret);
+        // cv::imshow(&amp;quot;chessboard corners&amp;quot;,img);
+        // cv::waitKey(10);
+    }
+    cv::calibrateCamera(object_points,img_points,img.size(),cameraMatirx,distCoeffs,rvecs,tvecs);
+}
+    
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;然后使用上方法得到的&lt;code&gt;object_points&lt;/code&gt; and &lt;code&gt;img_points&lt;/code&gt; 传入&lt;code&gt;cv::calibrateCamera()&lt;/code&gt; 方法中就可以计算出相机校正矩阵(camera calibration matrix)和失真系数(distortion coefficients)，再使用 &lt;code&gt;cv::undistort()&lt;/code&gt;方法就可得到校正图片。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;def cal_undistort(img, objpoints, imgpoints):
+    ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, img.shape[1::-1], None, None)
+    dst = cv2.undistort(img, mtx, dist, None, mtx)
+    return dst
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;以下为其中一张棋盘格图片校正前后对比：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://github.com/RyanAdex/CarND-Advanced-Lane-Lines/blob/master/output_images/undistorted_example.png&#34; alt=&#34;alt text&#34; title=&#34;Undistorted&#34; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&#34;校正测试图片&#34;&gt;校正测试图片&lt;/h4&gt;
+
+&lt;p&gt;代码如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;//获取棋盘格图片
+get_images_by_dir(cal_dir,filetype,imgs);
+//计算矫正系数
+get_obj_img_points(imgs,grid,distance,cameraMatirx,distCoeffs);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;测试图片校正前后对比：
+&lt;img src=&#34;https://github.com/RyanAdex/CarND-Advanced-Lane-Lines/blob/master/output_images/undistortion.png&#34; alt=&#34;alt text&#34; title=&#34;Undistorted&#34; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&#34;阈值过滤-thresholding&#34;&gt;阈值过滤(thresholding)&lt;/h4&gt;
+
+&lt;p&gt;这里会使用梯度阈值(gradient threshold)，颜色阈值(color threshold)等来处理校正后的图片，捕获车道线所在位置的像素。(这里的梯度指的是颜色变化的梯度)&lt;/p&gt;
+
+&lt;p&gt;以下方法通过&amp;rdquo;cv::Sobel()&amp;ldquo;方法计算x轴方向或y轴方向的颜色变化梯度导数，并以此进行阈值过滤(thresholding),得到二进制图(binary image)：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;void abs_sobel_thresh(const cv::Mat&amp;amp; src,cv::Mat&amp;amp; dst,const char&amp;amp; orient=&#39;x&#39;,const int&amp;amp; thresh_min=0,const int&amp;amp; thresh_max=255){
+    cv::Mat src_gray,grad;
+    cv::Mat abs_gray;
+    //转换成为灰度图片
+    cv::cvtColor(src,src_gray,cv::COLOR_RGB2GRAY);
+    //使用cv::Sobel()计算x方向或y方向的导
+    if(orient==&#39;x&#39;){
+        cv::Sobel(src_gray,grad,CV_64F,1,0);
+        cv::convertScaleAbs(grad,abs_gray);
+    }
+    if(orient==&#39;y&#39;){
+        cv::Sobel(src_gray,grad,CV_64F,0,1);
+        cv::convertScaleAbs(grad,abs_gray);
+    }
+    //二值化
+    cv::inRange(abs_gray,thresh_min,thresh_max,dst);
+    // cv::threshold(abs_gray,dst,thresh_min,thresh_max,cv::THRESH_BINARY|cv::THRESH_OTSU);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;通过测试发现使用x轴方向阈值在35到100区间过滤得出的二进制图可以捕捉较为清晰的车道线：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;abs_sobel_thresh(imge,absm,&#39;x&#39;,55,200);//sobel边缘识别
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;以下为使用上面方法应用测试图片的过滤前后对比图：
+&lt;img src=&#34;https://github.com/RyanAdex/CarND-Advanced-Lane-Lines/blob/master/output_images/x_thred.png&#34; alt=&#34;alt text&#34; title=&#34;x_thredx_thred&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;可以看到该方法的缺陷是在路面颜色相对较浅且车道线颜色为黄色时，无法捕捉到车道线（第三，第六，第七张图），但在其他情况车道线捕捉效果还是不错的。&lt;/p&gt;
+
+&lt;p&gt;接下来测试一下使用全局的颜色变化梯度来进行阈值过滤：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;void mag_thresh(const cv::Mat&amp;amp; src,cv::Mat&amp;amp; dst,const int&amp;amp; sobel_kernel=3,const int&amp;amp; thresh_min=0,const int&amp;amp; thresh_max=255){
+    cv::Mat src_gray,gray_x,gray_y,grad;
+    cv::Mat abs_gray_x,abs_gray_y;
+    //转换成为灰度图片
+    cv::cvtColor(src,src_gray,cv::COLOR_RGB2GRAY);
+    //使用cv::Sobel()计算x方向或y方向的导
+    cv::Sobel(src_gray,gray_x,CV_64F,1,0,sobel_kernel);
+    cv::Sobel(src_gray,gray_y,CV_64F,0,1,sobel_kernel);
+    //转换成CV_8U
+    cv::convertScaleAbs(gray_x,abs_gray_x);
+    cv::convertScaleAbs(gray_y,abs_gray_y);
+    //合并x和y方向的梯度
+    cv::addWeighted(abs_gray_x,0.5,abs_gray_y,0.5,0,grad);
+    //二值化
+    cv::inRange(grad,thresh_min,thresh_max,dst);
+    // cv::threshold(grad,dst,thresh_min,thresh_max,cv::THRESH_BINARY|cv::THRESH_OTSU);
+
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;mag_thresh(imge,mag,3,45,150);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://github.com/RyanAdex/CarND-Advanced-Lane-Lines/blob/master/output_images/mag_thresh.png&#34; alt=&#34;alt text&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;结果仍然不理想(观察第三，第六，第七张图片)，原因是当路面颜色相对较浅且车道线颜色为黄色时，颜色变化梯度较小，想要把捕捉车道线需要把阈值下限调低，然而这样做同时还会捕获大量的噪音像素，效果会更差。&lt;/p&gt;
+
+&lt;p&gt;那么使用颜色阈值过滤呢？
+下面为使用hls颜色空间的s通道进行阈值过滤：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;void hls_select(const cv::Mat&amp;amp; src,cv::Mat&amp;amp; dst,const char&amp;amp; channel=&#39;s&#39;,const int&amp;amp; thresh_min=0,const int&amp;amp; thresh_max=255){
+    cv::Mat hls,grad;
+    vector&amp;lt;cv::Mat&amp;gt; channels;
+    cv::cvtColor(src,hls,cv::COLOR_RGB2HLS);
+    //分离通道
+    cv::split(hls,channels);
+    //选择通道
+    switch (channel)
+    {
+        case &#39;h&#39;:
+            grad=channels.at(0);
+            break;
+        case &#39;l&#39;:
+            grad=channels.at(1);
+            break;
+        case &#39;s&#39;:
+            grad=channels.at(2);
+            break;
+        default:
+            break;
+    }
+    //二值化
+    cv::inRange(grad,thresh_min,thresh_max,dst);
+    // cv::threshold(grad,dst,thresh_min,thresh_max,cv::THRESH_BINARY);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;mag_thresh(imge,mag,3,45,150);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://github.com/RyanAdex/CarND-Advanced-Lane-Lines/blob/master/output_images/s_thresh.png&#34; alt=&#34;alt text&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;可以看到在路面颜色相对较浅且车道线颜色为黄色的区域，车道线仍然被清晰的捕捉到了，然而在其他地方表现却不太理想(第四，第八张图片)&lt;/p&gt;
+
+&lt;p&gt;因此为了应对多变的路面情况，需要结合多种阈值过滤方法。&lt;/p&gt;
+
+&lt;p&gt;以下为最终的阈值过滤组合：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;abs_sobel_thresh(imge,absm,&#39;x&#39;,55,200);//sobel边缘识别
+mag_thresh(imge,mag,3,45,150);
+hls_select(imge,hls,&#39;s&#39;,160,255);
+dir_threshold(imge,dir,3,0.7,1.3);
+luv_select(imge,luv,&#39;l&#39;,180,255);
+// lab_select(imge,lab,&#39;b&#39;,126,127);
+     
+imgout=(absm&amp;amp;mag&amp;amp;luv)|(hls&amp;amp;luv);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://github.com/RyanAdex/CarND-Advanced-Lane-Lines/blob/master/output_images/combined_all.png&#34; alt=&#34;alt text&#34; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&#34;透视变换-perspective-transform&#34;&gt;透视变换(perspective transform)&lt;/h4&gt;
+
+&lt;p&gt;这里使用&amp;rdquo;cv::getPerspectiveTransform()&amp;ldquo;来获取变形矩阵(tranform matrix)，把阈值过滤后的二进制图片变形为鸟撒视角。&lt;/p&gt;
+
+&lt;p&gt;以下为定义的源点（source points）和目标点（destination points）&lt;/p&gt;
+
+&lt;p&gt;| Source        | Destination   |
+|:&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;-:|:&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;-:|
+| 585, 460      | 320, 0        |
+| 203, 720      | 320, 720      |
+| 1127, 720     | 960, 720      |
+| 695, 460      | 960, 0        |&lt;/p&gt;
+
+&lt;p&gt;定义方法获取变形矩阵和逆变形矩阵：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;void get_M_Minv(const vector&amp;lt;cv::Point2f&amp;gt;&amp;amp; src,const vector&amp;lt;cv::Point2f&amp;gt;&amp;amp; dst,cv::Mat&amp;amp; M,cv::Mat&amp;amp; Minv){
+    M=cv::getPerspectiveTransform(src,dst);
+    Minv=cv::getPerspectiveTransform(dst,src);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;然后使用&amp;rdquo;cv::warpPerspective()&amp;ldquo;传入相关值获得变形图片(wrapped image)&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;cv::warpPerspective(cimg,imge,M,img.size(),cv::INTER_LINEAR);
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;以下为原图及变形后的效果：
+&lt;img src=&#34;https://github.com/RyanAdex/CarND-Advanced-Lane-Lines/blob/master/output_images/trans_on_test.png&#34; alt=&#34;alt text&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;以下为阈值过滤后二进制图变形后效果：
+&lt;img src=&#34;https://github.com/RyanAdex/CarND-Advanced-Lane-Lines/blob/master/output_images/perspective_tran.png&#34; alt=&#34;alt text&#34; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&#34;检测车道边界&#34;&gt;检测车道边界&lt;/h4&gt;
+
+&lt;p&gt;上面的二进制图还存在一定的噪音像素，为了准确检测车道边界，首先要确定哪些像素是属于车道线的。&lt;/p&gt;
+
+&lt;p&gt;首先要定位车道线的基点(图片最下方车道出现的x轴坐标)，由于车道线在的像素都集中在x轴一定范围内，因此把图片一分为二，左右两边的在x轴上的像素分布峰值非常有可能就是车道线基点。&lt;/p&gt;
+
+&lt;p&gt;以下为测试片x轴的像素分布图：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://github.com/RyanAdex/CarND-Advanced-Lane-Lines/blob/master/output_images/histogram.png&#34; alt=&#34;alt text&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;定位基点后，再使用使用滑动窗多项式拟合(sliding window polynomial fitting)来获取车道边界。这里使用9个200px宽的滑动窗来定位一条车道线像素：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;void find_line(const cv::Mat&amp;amp; src,vector&amp;lt;cv::Point&amp;gt;&amp;amp; lp,vector&amp;lt;cv::Point&amp;gt;&amp;amp; rp,int&amp;amp; rightx_current,int&amp;amp; leftx_current,double&amp;amp; distance_from_center){
+    cv::Mat hist,nonzero,l,r;
+    vector&amp;lt;cv::Point&amp;gt; nonzerol,nonzeror,lpoint,rpoint;
+    int midpoint;
+    cv::Point leftx_base,rightx_base;
+    //选择滑窗个数
+    int nwindows = 9;
+    //设置窗口高度
+    int window_height = int(src.rows/nwindows);
+    //设置窗口宽度
+    int margin=50;
+    //设置非零像素坐标最少个数
+    int minpix=50;
+    //TODO 加入if设置图像连续性，如果leftx_current和rightx_current为零，则认为第一次执行，需要计算该两点，如果已经计算了，则不许再次计算。
+    //rowrange图像区域分割
+    //将图像处理为一行，以行相加为方法    
+    cv::reduce(src.rowRange(src.rows/2,src.rows),hist,0,cv::REDUCE_SUM,CV_32S);
+    midpoint=int(hist.cols/2);
+    //将hist分为左右分别储存，并找出最大值
+    //minMaxIdx针对多通道，minMaxLoc针对单通道
+    cv::minMaxLoc(hist.colRange(0,midpoint),NULL,NULL,NULL,&amp;amp;leftx_base);
+    cv::minMaxLoc(hist.colRange(midpoint,hist.cols),NULL,NULL,NULL,&amp;amp;rightx_base);
+    //左右车道线基础点
+    leftx_current=leftx_base.x;
+    rightx_current=rightx_base.x+midpoint;
+    // 提前存入该基础点坐标
+    lpoint.push_back(cv::Point(leftx_current,src.rows));
+    rpoint.push_back(cv::Point(rightx_current,src.rows));
+    for(int i=0;i&amp;lt;nwindows;i++){
+        int win_y_low=src.rows-(i+1)*window_height;
+        //计算选框x坐标点，并将计算结果限制在图像坐标内
+        int win_xleft_low = leftx_current - margin;
+        win_xleft_low=win_xleft_low&amp;gt;0?win_xleft_low:0;
+        win_xleft_low=win_xleft_low&amp;lt;src.rows?win_xleft_low:src.rows;
+        //int win_xleft_high = leftx_current + margin;
+        int win_xright_low = rightx_current - margin;
+        win_xright_low=win_xright_low&amp;gt;0?win_xright_low:0;
+        win_xright_low=win_xright_low&amp;lt;src.rows?win_xright_low:src.rows;
+        //int win_xright_high = rightx_current + margin;
+        //NOTE要确保参数都大于0，且在src图像范围内，不然会报错
+        //NOTE 设置为ROI矩形区域选择
+        l=src(cv::Rect(win_xleft_low,win_y_low,2*margin,window_height));
+        r=src(cv::Rect(win_xright_low,win_y_low,2*margin,window_height));
+        //NOTE 把像素值不为零的像素坐标存入矩阵
+        cv::findNonZero(l,nonzerol);
+        cv::findNonZero(r,nonzeror);
+        //计算每个选框的leftx_current和rightx_current中心点
+        if(nonzerol.size()&amp;gt;minpix){
+            int leftx=0;
+            for(auto&amp;amp; n:nonzerol){
+                leftx+=n.x;
+            }
+            leftx_current=win_xleft_low+leftx/nonzerol.size();
+        }
+        if(nonzeror.size()&amp;gt;minpix){
+            int rightx=0;
+            for(auto&amp;amp; n:nonzeror){
+                rightx+=n.x;
+            }
+            rightx_current=win_xright_low+rightx/nonzeror.size();
+        }
+        //将中心点坐标存入容器
+        lpoint.push_back(cv::Point(leftx_current,win_y_low));
+        rpoint.push_back(cv::Point(rightx_current,win_y_low));
+    }
+    //拟合左右车道线坐标
+    cv::Mat leftx = polyfit(lpoint,2);
+    cv::Mat rightx = polyfit(rpoint,2);
+    //计算拟合曲线坐标
+    lp=polyval(leftx,lpoint,2);
+    rp=polyval(rightx,rpoint,2);
+    //计算车道偏离距离
+    int lane_width=abs(rpoint.front().x-lpoint.front().x);
+    double lane_xm_per_pix=3.7/lane_width;
+    double veh_pos=(((rpoint.front().x+lpoint.front().x)*lane_xm_per_pix)/2);
+    double cen_pos=((src.cols*lane_xm_per_pix)/2);
+    distance_from_center=veh_pos-cen_pos;
+    // cout&amp;lt;&amp;lt;&amp;quot;dis&amp;quot;&amp;lt;&amp;lt;distance_from_center&amp;lt;&amp;lt;endl;
+    // cout&amp;lt;&amp;lt;lp&amp;lt;&amp;lt;endl;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;以下为滑动窗多项式拟合(sliding window polynomial fitting)得到的结果：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://github.com/RyanAdex/CarND-Advanced-Lane-Lines/blob/master/output_images/sliding_window_search.png&#34; alt=&#34;alt text&#34; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&#34;计算车道曲率及车辆相对车道中心位置&#34;&gt;计算车道曲率及车辆相对车道中心位置&lt;/h4&gt;
+
+&lt;p&gt;利用检测车道得到的拟合值(find_line 返回的left_fit, right_fit)计算车道曲率，及车辆相对车道中心位置,代码在find_line中：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    int lane_width=abs(rpoint.front().x-lpoint.front().x);
+    double lane_xm_per_pix=3.7/lane_width;
+    double veh_pos=(((rpoint.front().x+lpoint.front().x)*lane_xm_per_pix)/2);
+    double cen_pos=((src.cols*lane_xm_per_pix)/2);
+    distance_from_center=veh_pos-cen_pos;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;处理原图-展示信息&#34;&gt;处理原图，展示信息&lt;/h4&gt;
+
+&lt;p&gt;使用逆变形矩阵把鸟瞰二进制图检测的车道镶嵌回原图，并高亮车道区域,使用&amp;rdquo;cv::putText()&amp;ldquo;方法处理原图展示车道曲率及车辆相对车道中心位置信息:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;void draw_area(const cv::Mat&amp;amp; src,vector&amp;lt;cv::Point&amp;gt;&amp;amp; lp,vector&amp;lt;cv::Point&amp;gt;&amp;amp; rp,const cv::Mat&amp;amp; Minv,double&amp;amp; distance_from_center){
+    vector&amp;lt;cv::Point&amp;gt; rflip,ptr;
+    cv::Mat colormask=cv::Mat::zeros(src.rows,src.cols,CV_8UC3);
+    cv::Mat dst,midst;
+    //绘制车道线
+    cv::polylines(colormask,lp,false,cv::Scalar(0,255,0),5);
+    cv::polylines(colormask,rp,false,cv::Scalar(0,0,255),5);
+    //反转坐标，以便绘制填充区域
+    cv::flip(rp,rflip,1);
+    //拼接坐标
+    cv::hconcat(lp,rflip,ptr);
+    //绘制填充区域
+    const cv::Point* em[1]={&amp;amp;ptr[0]};
+    int nop=(int)ptr.size();
+    cv::fillPoly(colormask,em,&amp;amp;nop,1,cv::Scalar(200,200,0));
+    //反变形
+    cv::warpPerspective(colormask,midst,Minv,src.size(),cv::INTER_LINEAR);
+    //将车道线图片和原始图片叠加
+    cv::addWeighted(src,1,midst,0.3,0,dst);
+    //绘制文字
+    cv::putText(dst,&amp;quot;distance bias:&amp;quot;+to_string(distance_from_center)+&amp;quot;m&amp;quot;,cv::Point(50,50),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(255,255,255),2);
+    cv::imshow(&amp;quot;video&amp;quot;,dst);
+    // cv::waitKey(10000);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;以下为测试图片处理后结果：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://github.com/RyanAdex/CarND-Advanced-Lane-Lines/blob/master/output_images/pipelined.png&#34; alt=&#34;alt text&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;以下为处理后测试视频链接:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/RyanAdex/CarND-Advanced-Lane-Lines/blob/master/vedio_out/project_video_out.mp4&#34; target=&#34;_blank&#34;&gt;处理后视频&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
       <title>LeetCode 队列与BFS--岛屿的数量</title>
       <link>https://RyanAdex.github.io/2018/12/09/queue/</link>
       <pubDate>Sun, 09 Dec 2018 20:29:13 +0800</pubDate>
@@ -23,7 +416,7 @@
 &lt;p&gt;给定一个由 &amp;lsquo;1&amp;rsquo;（陆地）和 &amp;lsquo;0&amp;rsquo;（水）组成的的二维网格，计算岛屿的数量。一个岛被水包围，并且它是通过水平方向或垂直方向上相邻的陆地连接而成的。你可以假设网格的四个边均被水包围。
 示例1：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;输入:
+&lt;pre&gt;&lt;code class=&#34;language-ascii&#34;&gt;输入:
 11110
 11010
 11000
@@ -49,7 +442,7 @@
 本题输入是一个二维数组，判断一个岛屿的要素是判断是否该陆地（1）&lt;code&gt;上下左右&lt;/code&gt;是否被水（0）包围，也就是说，岛屿的数量=联通陆地（1）的数量。
 &lt;code&gt;BFS&lt;/code&gt;算法题解如下，通过找到为岛（1）的初始点，然后对临近的岛屿进行依次访问，利用队列对访问的岛屿进行储存，如下列图示:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;  +-----&amp;gt;
+&lt;pre&gt;&lt;code class=&#34;language-ascii&#34;&gt;  +-----&amp;gt;
  +-+
 ++1|1 1 1 0
 +--+

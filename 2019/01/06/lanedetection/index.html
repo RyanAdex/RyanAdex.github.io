@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="generator" content="Source Themes Academic 3.1.1">
+  <meta name="generator" content="Hugo 0.51" />
+  <meta name="author" content="Ryan">
+
+  
+  
+  
+  
+    
+  
+  <meta name="description" content="车道检测(Advanced Lane Finding Project) 实现步骤: 使用提供的一组棋盘格图片计算相机校正矩阵(camera calibration matrix)和失真系数(distorti">
+
+  
+  <link rel="alternate" hreflang="zh-Hans" href="https://RyanAdex.github.io/2019/01/06/lanedetection/">
+
+  
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <meta name="theme-color" content="#4caf50">
+  
+
+  
+  
+  
+  
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" integrity="sha256-ygkqlh3CYSUri3LhQxzdcm0n1EQvH2Y+U5S2idbLtxs=" crossorigin="anonymous">
+
+    
+    
+    
+      
+    
+    
+      
+      
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" crossorigin="anonymous">
+      
+    
+
+    
+
+    
+
+  
+
+  
+  
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:400,700|Merriweather|Roboto+Mono">
+  
+
+  <link rel="stylesheet" href="/styles.css">
+  
+
+  
+  
+  
+
+  
+  <link rel="alternate" href="https://RyanAdex.github.io/index.xml" type="application/rss+xml" title="Ryan&#39;s Blog">
+  <link rel="feed" href="https://RyanAdex.github.io/index.xml" type="application/rss+xml" title="Ryan&#39;s Blog">
+  
+
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="icon" type="image/png" href="/img/icon.png">
+  <link rel="apple-touch-icon" type="image/png" href="/img/icon-192.png">
+
+  <link rel="canonical" href="https://RyanAdex.github.io/2019/01/06/lanedetection/">
+
+  <meta property="twitter:card" content="summary_large_image">
+  
+  <meta property="og:site_name" content="Ryan&#39;s Blog">
+  <meta property="og:url" content="https://RyanAdex.github.io/2019/01/06/lanedetection/">
+  <meta property="og:title" content="车道线检测/Opencv/传统方法 | Ryan&#39;s Blog">
+  <meta property="og:description" content="车道检测(Advanced Lane Finding Project) 实现步骤: 使用提供的一组棋盘格图片计算相机校正矩阵(camera calibration matrix)和失真系数(distorti">
+  
+  
+    
+  <meta property="og:image" content="https://RyanAdex.github.io/img/icon-192.png">
+  <meta property="og:locale" content="zh-Hans">
+  
+  <meta property="article:published_time" content="2019-01-06T16:18:16&#43;08:00">
+  
+  <meta property="article:modified_time" content="2019-01-06T16:18:16&#43;08:00">
+  
+
+  
+
+  
+
+  <title>车道线检测/Opencv/传统方法 | Ryan&#39;s Blog</title>
+
+</head>
+<body id="top" data-spy="scroll" data-target="#TableOfContents" data-offset="71" >
+  <aside class="search-results" id="search">
+  <div class="container">
+    <section class="search-header fixed-top">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1></h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        <input name="q" id="search-query" placeholder="搜索..." autocapitalize="off"
+        autocomplete="off" autocorrect="off" role="textbox" spellcheck="false" type="search">
+        
+      </div>
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+<nav class="navbar navbar-light fixed-top navbar-expand-lg py-0" id="navbar-main">
+  <div class="container">
+
+    
+      <a class="navbar-brand" href="/">Ryan&#39;s Blog</a>
+      
+      <button type="button" class="navbar-toggler" data-toggle="collapse"
+              data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="切换导航">
+        <span><i class="fas fa-bars"></i></span>
+      </button>
+      
+
+    
+    <div class="collapse navbar-collapse" id="navbar">
+
+      
+      
+      <ul class="navbar-nav ml-auto">
+        
+
+        
+
+        
+        
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/">
+            
+            <span>主页</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/post">
+            
+            <span>帖子</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+      
+
+        
+
+        
+        <li class="nav-item">
+          <a class="nav-link js-search" href="#"><i class="fas fa-search" aria-hidden="true"></i></a>
+        </li>
+        
+
+        
+      </ul>
+
+    </div>
+  </div>
+</nav>
+
+
+<article class="article" itemscope itemtype="http://schema.org/Article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  
+  
+<div class="article-container pt-3">
+  <h1 itemprop="name">车道线检测/Opencv/传统方法</h1>
+
+  
+
+  
+    
+
+<div class="article-metadata">
+
+  
+  
+  <span itemscope itemprop="author" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ryan">
+  </span>
+  
+
+  <span class="article-date">
+    
+    <meta content="2019-01-06 16:18:16 &#43;0800 CST" itemprop="datePublished">
+    <time datetime="2019-01-06 16:18:16 &#43;0800 CST" itemprop="dateModified">
+      Jan 6, 2019
+    </time>
+  </span>
+  <span itemscope itemprop="publisher" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ryan">
+  </span>
+
+  
+  <span class="middot-divider"></span>
+  <span class="article-reading-time">
+    8 分钟阅读时间
+  </span>
+  
+
+  
+  
+
+  
+
+  
+  
+<div class="share-box" aria-hidden="true">
+  <ul class="share">
+    <li>
+      <a class="twitter"
+         href="https://twitter.com/intent/tweet?text=%e8%bd%a6%e9%81%93%e7%ba%bf%e6%a3%80%e6%b5%8b%2fOpencv%2f%e4%bc%a0%e7%bb%9f%e6%96%b9%e6%b3%95&amp;url=https%3a%2f%2fRyanAdex.github.io%2f2019%2f01%2f06%2flanedetection%2f"
+         target="_blank" rel="noopener">
+        <i class="fab fa-twitter"></i>
+      </a>
+    </li>
+    <li>
+      <a class="facebook"
+         href="https://www.facebook.com/sharer.php?u=https%3a%2f%2fRyanAdex.github.io%2f2019%2f01%2f06%2flanedetection%2f"
+         target="_blank" rel="noopener">
+        <i class="fab fa-facebook-f"></i>
+      </a>
+    </li>
+    <li>
+      <a class="linkedin"
+         href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fRyanAdex.github.io%2f2019%2f01%2f06%2flanedetection%2f&amp;title=%e8%bd%a6%e9%81%93%e7%ba%bf%e6%a3%80%e6%b5%8b%2fOpencv%2f%e4%bc%a0%e7%bb%9f%e6%96%b9%e6%b3%95"
+         target="_blank" rel="noopener">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+    </li>
+    <li>
+      <a class="weibo"
+         href="http://service.weibo.com/share/share.php?url=https%3a%2f%2fRyanAdex.github.io%2f2019%2f01%2f06%2flanedetection%2f&amp;title=%e8%bd%a6%e9%81%93%e7%ba%bf%e6%a3%80%e6%b5%8b%2fOpencv%2f%e4%bc%a0%e7%bb%9f%e6%96%b9%e6%b3%95"
+         target="_blank" rel="noopener">
+        <i class="fab fa-weibo"></i>
+      </a>
+    </li>
+    <li>
+      <a class="email"
+         href="mailto:?subject=%e8%bd%a6%e9%81%93%e7%ba%bf%e6%a3%80%e6%b5%8b%2fOpencv%2f%e4%bc%a0%e7%bb%9f%e6%96%b9%e6%b3%95&amp;body=https%3a%2f%2fRyanAdex.github.io%2f2019%2f01%2f06%2flanedetection%2f">
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+  
+
+</div>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style" itemprop="articleBody">
+      
+
+<h2 id="车道检测-advanced-lane-finding-project"><strong>车道检测(Advanced Lane Finding Project)</strong></h2>
+
+<p><a href="http://www.udacity.com/drive" target="_blank"><img src="https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg" alt="Udacity - Self-Driving Car NanoDegree" /></a></p>
+
+<p>实现步骤:</p>
+
+<ul>
+<li>使用提供的一组棋盘格图片计算相机校正矩阵(camera calibration matrix)和失真系数(distortion coefficients).</li>
+<li>校正图片</li>
+<li>使用梯度阈值(gradient threshold)，颜色阈值(color threshold)等处理图片得到清晰捕捉车道线的二进制图(binary image).</li>
+<li>使用透视变换(perspective transform)得到二进制图(binary image)的鸟瞰图(birds-eye view).</li>
+<li>检测属于车道线的像素并用它来测出车道边界.</li>
+<li>计算车道曲率及车辆相对车道中央的位置.</li>
+<li>处理图片展示车道区域，及车道的曲率和车辆位置.</li>
+</ul>
+
+<h4 id="相机校正-camera-calibration">相机校正(Camera Calibration)</h4>
+
+<p>这里会使用opencv提供的方法通过棋盘格图片组计算相机校正矩阵(camera calibration matrix)和失真系数(distortion coefficients)。首先要得到棋盘格内角的世界坐标&rdquo;object points&rdquo;和对应图片坐标&rdquo;image point&rdquo;。假设棋盘格内角世界坐标的z轴为0，棋盘在(x,y)面上，则对于每张棋盘格图片组的图片而言，对应&rdquo;object points&rdquo;都是一样的。而通过使用openCv的cv::findChessboardCorners()，传入棋盘格的灰度(grayscale)图片和横纵内角点个数就可得到图片内角的&rdquo;image point&rdquo;。</p>
+
+<pre><code>
+void get_obj_img_points(const vector&lt;string&gt; &amp; images,const cv::Size &amp; grid,const cv::Size&amp; distance,cv::Mat&amp; cameraMatirx,cv::Mat&amp; distCoeffs){
+    cv::Mat img,gray;//灰度图像
+    vector&lt;cv::Point2f&gt; corners;//用来储存t图片角点
+    vector&lt;cv::Point3f&gt; object_point;//保存标定板上所有角点坐标
+    vector&lt;cv::Mat&gt; rvecs,tvecs;//旋转向量和位移向量
+    vector&lt;vector&lt;cv::Point3f&gt;&gt; object_points;//棋盘格三维坐标容器
+    vector&lt;vector&lt;cv::Point2f&gt;&gt; img_points;//棋盘格角点容器
+    for(auto &amp; imgdir:images){
+        //载入图像
+        img=cv::imread(imgdir);
+        //生成object points
+        for(int i=0;i&lt;grid.height;i++){
+            for(int j=0;j&lt;grid.width;j++){
+                object_point.push_back(cv::Point3f(i*distance.width,j*distance.height,0));//向容器存入每个角点坐标
+            }
+        }
+        //得到灰度图片
+        cv::cvtColor(img,gray,cv::COLOR_BGR2GRAY);
+        //得到图片的image points
+        //NOTE corners的储存方式为从左往右，从上往下每行储存，所以储存object_point的时候需从grid。width开始遍历储存
+        bool ret=cv::findChessboardCorners(gray,grid,corners,cv::CALIB_CB_ADAPTIVE_THRESH+cv::CALIB_CB_NORMALIZE_IMAGE+cv::CALIB_CB_FAST_CHECK);
+        if(ret){//亚像素精细化
+            cv::cornerSubPix(gray,corners,cv::Size(11,11),cv::Size(-1,-1),
+            cv::TermCriteria(cv::TermCriteria::COUNT+cv::TermCriteria::EPS, 30, 0.1));
+            img_points.push_back(corners);
+            object_points.push_back(object_point);
+        }
+        object_point.clear();//清空object_point以便下一幅图使用该容器
+        //绘制角点并显示
+        cv::drawChessboardCorners(img,grid,cv::Mat(corners),ret);
+        // cv::imshow(&quot;chessboard corners&quot;,img);
+        // cv::waitKey(10);
+    }
+    cv::calibrateCamera(object_points,img_points,img.size(),cameraMatirx,distCoeffs,rvecs,tvecs);
+}
+    
+</code></pre>
+
+<p>然后使用上方法得到的<code>object_points</code> and <code>img_points</code> 传入<code>cv::calibrateCamera()</code> 方法中就可以计算出相机校正矩阵(camera calibration matrix)和失真系数(distortion coefficients)，再使用 <code>cv::undistort()</code>方法就可得到校正图片。</p>
+
+<pre><code>def cal_undistort(img, objpoints, imgpoints):
+    ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, img.shape[1::-1], None, None)
+    dst = cv2.undistort(img, mtx, dist, None, mtx)
+    return dst
+</code></pre>
+
+<p>以下为其中一张棋盘格图片校正前后对比：</p>
+
+<p><img src="https://github.com/RyanAdex/CarND-Advanced-Lane-Lines/blob/master/output_images/undistorted_example.png" alt="alt text" title="Undistorted" /></p>
+
+<h4 id="校正测试图片">校正测试图片</h4>
+
+<p>代码如下：</p>
+
+<pre><code>//获取棋盘格图片
+get_images_by_dir(cal_dir,filetype,imgs);
+//计算矫正系数
+get_obj_img_points(imgs,grid,distance,cameraMatirx,distCoeffs);
+</code></pre>
+
+<p>测试图片校正前后对比：
+<img src="https://github.com/RyanAdex/CarND-Advanced-Lane-Lines/blob/master/output_images/undistortion.png" alt="alt text" title="Undistorted" /></p>
+
+<h4 id="阈值过滤-thresholding">阈值过滤(thresholding)</h4>
+
+<p>这里会使用梯度阈值(gradient threshold)，颜色阈值(color threshold)等来处理校正后的图片，捕获车道线所在位置的像素。(这里的梯度指的是颜色变化的梯度)</p>
+
+<p>以下方法通过&rdquo;cv::Sobel()&ldquo;方法计算x轴方向或y轴方向的颜色变化梯度导数，并以此进行阈值过滤(thresholding),得到二进制图(binary image)：</p>
+
+<pre><code>void abs_sobel_thresh(const cv::Mat&amp; src,cv::Mat&amp; dst,const char&amp; orient='x',const int&amp; thresh_min=0,const int&amp; thresh_max=255){
+    cv::Mat src_gray,grad;
+    cv::Mat abs_gray;
+    //转换成为灰度图片
+    cv::cvtColor(src,src_gray,cv::COLOR_RGB2GRAY);
+    //使用cv::Sobel()计算x方向或y方向的导
+    if(orient=='x'){
+        cv::Sobel(src_gray,grad,CV_64F,1,0);
+        cv::convertScaleAbs(grad,abs_gray);
+    }
+    if(orient=='y'){
+        cv::Sobel(src_gray,grad,CV_64F,0,1);
+        cv::convertScaleAbs(grad,abs_gray);
+    }
+    //二值化
+    cv::inRange(abs_gray,thresh_min,thresh_max,dst);
+    // cv::threshold(abs_gray,dst,thresh_min,thresh_max,cv::THRESH_BINARY|cv::THRESH_OTSU);
+}
+</code></pre>
+
+<p>通过测试发现使用x轴方向阈值在35到100区间过滤得出的二进制图可以捕捉较为清晰的车道线：</p>
+
+<pre><code>abs_sobel_thresh(imge,absm,'x',55,200);//sobel边缘识别
+</code></pre>
+
+<p>以下为使用上面方法应用测试图片的过滤前后对比图：
+<img src="https://github.com/RyanAdex/CarND-Advanced-Lane-Lines/blob/master/output_images/x_thred.png" alt="alt text" title="x_thredx_thred" /></p>
+
+<p>可以看到该方法的缺陷是在路面颜色相对较浅且车道线颜色为黄色时，无法捕捉到车道线（第三，第六，第七张图），但在其他情况车道线捕捉效果还是不错的。</p>
+
+<p>接下来测试一下使用全局的颜色变化梯度来进行阈值过滤：</p>
+
+<pre><code>void mag_thresh(const cv::Mat&amp; src,cv::Mat&amp; dst,const int&amp; sobel_kernel=3,const int&amp; thresh_min=0,const int&amp; thresh_max=255){
+    cv::Mat src_gray,gray_x,gray_y,grad;
+    cv::Mat abs_gray_x,abs_gray_y;
+    //转换成为灰度图片
+    cv::cvtColor(src,src_gray,cv::COLOR_RGB2GRAY);
+    //使用cv::Sobel()计算x方向或y方向的导
+    cv::Sobel(src_gray,gray_x,CV_64F,1,0,sobel_kernel);
+    cv::Sobel(src_gray,gray_y,CV_64F,0,1,sobel_kernel);
+    //转换成CV_8U
+    cv::convertScaleAbs(gray_x,abs_gray_x);
+    cv::convertScaleAbs(gray_y,abs_gray_y);
+    //合并x和y方向的梯度
+    cv::addWeighted(abs_gray_x,0.5,abs_gray_y,0.5,0,grad);
+    //二值化
+    cv::inRange(grad,thresh_min,thresh_max,dst);
+    // cv::threshold(grad,dst,thresh_min,thresh_max,cv::THRESH_BINARY|cv::THRESH_OTSU);
+
+}
+
+</code></pre>
+
+<pre><code>mag_thresh(imge,mag,3,45,150);
+</code></pre>
+
+<p><img src="https://github.com/RyanAdex/CarND-Advanced-Lane-Lines/blob/master/output_images/mag_thresh.png" alt="alt text" /></p>
+
+<p>结果仍然不理想(观察第三，第六，第七张图片)，原因是当路面颜色相对较浅且车道线颜色为黄色时，颜色变化梯度较小，想要把捕捉车道线需要把阈值下限调低，然而这样做同时还会捕获大量的噪音像素，效果会更差。</p>
+
+<p>那么使用颜色阈值过滤呢？
+下面为使用hls颜色空间的s通道进行阈值过滤：</p>
+
+<pre><code>void hls_select(const cv::Mat&amp; src,cv::Mat&amp; dst,const char&amp; channel='s',const int&amp; thresh_min=0,const int&amp; thresh_max=255){
+    cv::Mat hls,grad;
+    vector&lt;cv::Mat&gt; channels;
+    cv::cvtColor(src,hls,cv::COLOR_RGB2HLS);
+    //分离通道
+    cv::split(hls,channels);
+    //选择通道
+    switch (channel)
+    {
+        case 'h':
+            grad=channels.at(0);
+            break;
+        case 'l':
+            grad=channels.at(1);
+            break;
+        case 's':
+            grad=channels.at(2);
+            break;
+        default:
+            break;
+    }
+    //二值化
+    cv::inRange(grad,thresh_min,thresh_max,dst);
+    // cv::threshold(grad,dst,thresh_min,thresh_max,cv::THRESH_BINARY);
+}
+</code></pre>
+
+<pre><code>mag_thresh(imge,mag,3,45,150);
+</code></pre>
+
+<p><img src="https://github.com/RyanAdex/CarND-Advanced-Lane-Lines/blob/master/output_images/s_thresh.png" alt="alt text" /></p>
+
+<p>可以看到在路面颜色相对较浅且车道线颜色为黄色的区域，车道线仍然被清晰的捕捉到了，然而在其他地方表现却不太理想(第四，第八张图片)</p>
+
+<p>因此为了应对多变的路面情况，需要结合多种阈值过滤方法。</p>
+
+<p>以下为最终的阈值过滤组合：</p>
+
+<pre><code>abs_sobel_thresh(imge,absm,'x',55,200);//sobel边缘识别
+mag_thresh(imge,mag,3,45,150);
+hls_select(imge,hls,'s',160,255);
+dir_threshold(imge,dir,3,0.7,1.3);
+luv_select(imge,luv,'l',180,255);
+// lab_select(imge,lab,'b',126,127);
+     
+imgout=(absm&amp;mag&amp;luv)|(hls&amp;luv);
+</code></pre>
+
+<p><img src="https://github.com/RyanAdex/CarND-Advanced-Lane-Lines/blob/master/output_images/combined_all.png" alt="alt text" /></p>
+
+<h4 id="透视变换-perspective-transform">透视变换(perspective transform)</h4>
+
+<p>这里使用&rdquo;cv::getPerspectiveTransform()&ldquo;来获取变形矩阵(tranform matrix)，把阈值过滤后的二进制图片变形为鸟撒视角。</p>
+
+<p>以下为定义的源点（source points）和目标点（destination points）</p>
+
+<p>| Source        | Destination   |
+|:&mdash;&mdash;&mdash;&mdash;-:|:&mdash;&mdash;&mdash;&mdash;-:|
+| 585, 460      | 320, 0        |
+| 203, 720      | 320, 720      |
+| 1127, 720     | 960, 720      |
+| 695, 460      | 960, 0        |</p>
+
+<p>定义方法获取变形矩阵和逆变形矩阵：</p>
+
+<pre><code>void get_M_Minv(const vector&lt;cv::Point2f&gt;&amp; src,const vector&lt;cv::Point2f&gt;&amp; dst,cv::Mat&amp; M,cv::Mat&amp; Minv){
+    M=cv::getPerspectiveTransform(src,dst);
+    Minv=cv::getPerspectiveTransform(dst,src);
+}
+</code></pre>
+
+<p>然后使用&rdquo;cv::warpPerspective()&ldquo;传入相关值获得变形图片(wrapped image)</p>
+
+<pre><code>cv::warpPerspective(cimg,imge,M,img.size(),cv::INTER_LINEAR);
+
+</code></pre>
+
+<p>以下为原图及变形后的效果：
+<img src="https://github.com/RyanAdex/CarND-Advanced-Lane-Lines/blob/master/output_images/trans_on_test.png" alt="alt text" /></p>
+
+<p>以下为阈值过滤后二进制图变形后效果：
+<img src="https://github.com/RyanAdex/CarND-Advanced-Lane-Lines/blob/master/output_images/perspective_tran.png" alt="alt text" /></p>
+
+<h4 id="检测车道边界">检测车道边界</h4>
+
+<p>上面的二进制图还存在一定的噪音像素，为了准确检测车道边界，首先要确定哪些像素是属于车道线的。</p>
+
+<p>首先要定位车道线的基点(图片最下方车道出现的x轴坐标)，由于车道线在的像素都集中在x轴一定范围内，因此把图片一分为二，左右两边的在x轴上的像素分布峰值非常有可能就是车道线基点。</p>
+
+<p>以下为测试片x轴的像素分布图：</p>
+
+<p><img src="https://github.com/RyanAdex/CarND-Advanced-Lane-Lines/blob/master/output_images/histogram.png" alt="alt text" /></p>
+
+<p>定位基点后，再使用使用滑动窗多项式拟合(sliding window polynomial fitting)来获取车道边界。这里使用9个200px宽的滑动窗来定位一条车道线像素：</p>
+
+<pre><code>void find_line(const cv::Mat&amp; src,vector&lt;cv::Point&gt;&amp; lp,vector&lt;cv::Point&gt;&amp; rp,int&amp; rightx_current,int&amp; leftx_current,double&amp; distance_from_center){
+    cv::Mat hist,nonzero,l,r;
+    vector&lt;cv::Point&gt; nonzerol,nonzeror,lpoint,rpoint;
+    int midpoint;
+    cv::Point leftx_base,rightx_base;
+    //选择滑窗个数
+    int nwindows = 9;
+    //设置窗口高度
+    int window_height = int(src.rows/nwindows);
+    //设置窗口宽度
+    int margin=50;
+    //设置非零像素坐标最少个数
+    int minpix=50;
+    //TODO 加入if设置图像连续性，如果leftx_current和rightx_current为零，则认为第一次执行，需要计算该两点，如果已经计算了，则不许再次计算。
+    //rowrange图像区域分割
+    //将图像处理为一行，以行相加为方法    
+    cv::reduce(src.rowRange(src.rows/2,src.rows),hist,0,cv::REDUCE_SUM,CV_32S);
+    midpoint=int(hist.cols/2);
+    //将hist分为左右分别储存，并找出最大值
+    //minMaxIdx针对多通道，minMaxLoc针对单通道
+    cv::minMaxLoc(hist.colRange(0,midpoint),NULL,NULL,NULL,&amp;leftx_base);
+    cv::minMaxLoc(hist.colRange(midpoint,hist.cols),NULL,NULL,NULL,&amp;rightx_base);
+    //左右车道线基础点
+    leftx_current=leftx_base.x;
+    rightx_current=rightx_base.x+midpoint;
+    // 提前存入该基础点坐标
+    lpoint.push_back(cv::Point(leftx_current,src.rows));
+    rpoint.push_back(cv::Point(rightx_current,src.rows));
+    for(int i=0;i&lt;nwindows;i++){
+        int win_y_low=src.rows-(i+1)*window_height;
+        //计算选框x坐标点，并将计算结果限制在图像坐标内
+        int win_xleft_low = leftx_current - margin;
+        win_xleft_low=win_xleft_low&gt;0?win_xleft_low:0;
+        win_xleft_low=win_xleft_low&lt;src.rows?win_xleft_low:src.rows;
+        //int win_xleft_high = leftx_current + margin;
+        int win_xright_low = rightx_current - margin;
+        win_xright_low=win_xright_low&gt;0?win_xright_low:0;
+        win_xright_low=win_xright_low&lt;src.rows?win_xright_low:src.rows;
+        //int win_xright_high = rightx_current + margin;
+        //NOTE要确保参数都大于0，且在src图像范围内，不然会报错
+        //NOTE 设置为ROI矩形区域选择
+        l=src(cv::Rect(win_xleft_low,win_y_low,2*margin,window_height));
+        r=src(cv::Rect(win_xright_low,win_y_low,2*margin,window_height));
+        //NOTE 把像素值不为零的像素坐标存入矩阵
+        cv::findNonZero(l,nonzerol);
+        cv::findNonZero(r,nonzeror);
+        //计算每个选框的leftx_current和rightx_current中心点
+        if(nonzerol.size()&gt;minpix){
+            int leftx=0;
+            for(auto&amp; n:nonzerol){
+                leftx+=n.x;
+            }
+            leftx_current=win_xleft_low+leftx/nonzerol.size();
+        }
+        if(nonzeror.size()&gt;minpix){
+            int rightx=0;
+            for(auto&amp; n:nonzeror){
+                rightx+=n.x;
+            }
+            rightx_current=win_xright_low+rightx/nonzeror.size();
+        }
+        //将中心点坐标存入容器
+        lpoint.push_back(cv::Point(leftx_current,win_y_low));
+        rpoint.push_back(cv::Point(rightx_current,win_y_low));
+    }
+    //拟合左右车道线坐标
+    cv::Mat leftx = polyfit(lpoint,2);
+    cv::Mat rightx = polyfit(rpoint,2);
+    //计算拟合曲线坐标
+    lp=polyval(leftx,lpoint,2);
+    rp=polyval(rightx,rpoint,2);
+    //计算车道偏离距离
+    int lane_width=abs(rpoint.front().x-lpoint.front().x);
+    double lane_xm_per_pix=3.7/lane_width;
+    double veh_pos=(((rpoint.front().x+lpoint.front().x)*lane_xm_per_pix)/2);
+    double cen_pos=((src.cols*lane_xm_per_pix)/2);
+    distance_from_center=veh_pos-cen_pos;
+    // cout&lt;&lt;&quot;dis&quot;&lt;&lt;distance_from_center&lt;&lt;endl;
+    // cout&lt;&lt;lp&lt;&lt;endl;
+}
+</code></pre>
+
+<p>以下为滑动窗多项式拟合(sliding window polynomial fitting)得到的结果：</p>
+
+<p><img src="https://github.com/RyanAdex/CarND-Advanced-Lane-Lines/blob/master/output_images/sliding_window_search.png" alt="alt text" /></p>
+
+<h4 id="计算车道曲率及车辆相对车道中心位置">计算车道曲率及车辆相对车道中心位置</h4>
+
+<p>利用检测车道得到的拟合值(find_line 返回的left_fit, right_fit)计算车道曲率，及车辆相对车道中心位置,代码在find_line中：</p>
+
+<pre><code>    int lane_width=abs(rpoint.front().x-lpoint.front().x);
+    double lane_xm_per_pix=3.7/lane_width;
+    double veh_pos=(((rpoint.front().x+lpoint.front().x)*lane_xm_per_pix)/2);
+    double cen_pos=((src.cols*lane_xm_per_pix)/2);
+    distance_from_center=veh_pos-cen_pos;
+</code></pre>
+
+<h4 id="处理原图-展示信息">处理原图，展示信息</h4>
+
+<p>使用逆变形矩阵把鸟瞰二进制图检测的车道镶嵌回原图，并高亮车道区域,使用&rdquo;cv::putText()&ldquo;方法处理原图展示车道曲率及车辆相对车道中心位置信息:</p>
+
+<pre><code>void draw_area(const cv::Mat&amp; src,vector&lt;cv::Point&gt;&amp; lp,vector&lt;cv::Point&gt;&amp; rp,const cv::Mat&amp; Minv,double&amp; distance_from_center){
+    vector&lt;cv::Point&gt; rflip,ptr;
+    cv::Mat colormask=cv::Mat::zeros(src.rows,src.cols,CV_8UC3);
+    cv::Mat dst,midst;
+    //绘制车道线
+    cv::polylines(colormask,lp,false,cv::Scalar(0,255,0),5);
+    cv::polylines(colormask,rp,false,cv::Scalar(0,0,255),5);
+    //反转坐标，以便绘制填充区域
+    cv::flip(rp,rflip,1);
+    //拼接坐标
+    cv::hconcat(lp,rflip,ptr);
+    //绘制填充区域
+    const cv::Point* em[1]={&amp;ptr[0]};
+    int nop=(int)ptr.size();
+    cv::fillPoly(colormask,em,&amp;nop,1,cv::Scalar(200,200,0));
+    //反变形
+    cv::warpPerspective(colormask,midst,Minv,src.size(),cv::INTER_LINEAR);
+    //将车道线图片和原始图片叠加
+    cv::addWeighted(src,1,midst,0.3,0,dst);
+    //绘制文字
+    cv::putText(dst,&quot;distance bias:&quot;+to_string(distance_from_center)+&quot;m&quot;,cv::Point(50,50),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(255,255,255),2);
+    cv::imshow(&quot;video&quot;,dst);
+    // cv::waitKey(10000);
+}
+</code></pre>
+
+<p>以下为测试图片处理后结果：</p>
+
+<p><img src="https://github.com/RyanAdex/CarND-Advanced-Lane-Lines/blob/master/output_images/pipelined.png" alt="alt text" /></p>
+
+<p>以下为处理后测试视频链接:</p>
+
+<p><a href="https://github.com/RyanAdex/CarND-Advanced-Lane-Lines/blob/master/vedio_out/project_video_out.mp4" target="_blank">处理后视频</a></p>
+
+    </div>
+
+    
+
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tags/go/">Go</a>
+  
+  <a class="badge badge-light" href="/tags/c&#43;&#43;/">C&#43;&#43;</a>
+  
+  <a class="badge badge-light" href="/tags/lane_detection/">Lane_detection</a>
+  
+  <a class="badge badge-light" href="/tags/opencv/">opencv</a>
+  
+</div>
+
+
+
+    
+
+
+
+
+
+
+<div class="media author-card" itemscope itemtype="http://schema.org/Person">
+  
+  <img class="portrait mr-3" src="https://s.gravatar.com/avatar/b493fcabac7c264287d1cc64313d6eb2?s=200')" itemprop="image" alt="Avatar">
+  
+  <div class="media-body">
+    <h5 class="card-title" itemprop="name"><a href="/">Ryan</a></h5>
+    <h6 class="card-subtitle">Self Driving Car Engineer</h6>
+    
+    <ul class="network-icon" aria-hidden="true">
+      
+      
+      
+      
+        
+      
+      
+      
+      
+      
+      <li>
+        <a itemprop="sameAs" href="mailto:ryan-adex@outlook.com" >
+          <i class="fas fa-envelope"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+        
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="https://github.com/RyanAdex" target="_blank" rel="noopener">
+          <i class="fab fa-github"></i>
+        </a>
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+
+
+    
+    
+    <div class="article-widget">
+      <div class="hr-light"></div>
+      <h3>相关</h3>
+      <ul>
+        
+        <li><a href="/2018/12/09/queue/">LeetCode 队列与BFS--岛屿的数量</a></li>
+        
+        <li><a href="/2018/12/04/htmlparse/">go语言带cookie的net客户端请求ii与[]byte转string</a></li>
+        
+        <li><a href="/2018/11/28/filemove/">go语言 os.Rename() cannot move the file to a different disk drive 怎么办</a></li>
+        
+      </ul>
+    </div>
+    
+
+    
+    <div class="article-widget">
+      <div class="post-nav">
+  
+  
+  <div class="post-nav-item">
+    <div class="meta-nav">上一页</div>
+    <a href="https://RyanAdex.github.io/2018/12/09/queue/" rel="prev">LeetCode 队列与BFS--岛屿的数量</a>
+  </div>
+  
+</div>
+
+    </div>
+    
+
+    
+ 
+
+<div id="gitalk-container"></div>
+ <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+ <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+<script>
+  const gitalk = new Gitalk({
+  clientID: '32eab8d6f4dcc1fe269c',
+  clientSecret: '56ef17c133c08bd3eacdaeeca59115797dc5646d',
+  repo: 'RyanAdex.github.io',
+  owner: 'RyanAdex',
+  admin: ['RyanAdex'],
+  id: location.pathname,      
+  distractionFreeMode: false  
+})
+
+gitalk.render('gitalk-container')
+</script>
+
+
+  </div>
+</article>
+
+<div class="container">
+  <footer class="site-footer">
+  
+
+  <p class="powered-by">
+    &copy; 2018 &middot; 
+    timeiord.github.io All Rights Reserved
+    
+
+    
+    <span class="float-right" aria-hidden="true">
+      <a href="#" id="back_to_top">
+        <span class="button_icon">
+          <i class="fas fa-chevron-up fa-2x"></i>
+        </span>
+      </a>
+    </span>
+    
+  </p>
+</footer>
+
+</div>
+
+
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">引用</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> 复制
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> 下载
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+    
+    
+    <script src="/js/mathjax-config.js"></script>
+    
+
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha512-+NqPlbbtM1QqiK8ZAo4Yrj2c4lNQoGv8P79DPtKzj++l5jnN39rHA/xsqn8zE9l0uSoxaCdrOgFs6yjyfbBxSg==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.3/imagesloaded.pkgd.min.js" integrity="sha512-umsR78NN0D23AzgoZ11K7raBD+R6hqKojyBZs1w8WvYlsI+QuKRGBx3LFCwhatzBunCjDuJpDHwxD13sLMbpRA==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.4/isotope.pkgd.min.js" integrity="sha512-VDBOIlDbuC4VWxGJNmuFRQ0Li0SKkDpmGyuhAG5LTDLd/dJ/S0WMVxriR2Y+CyPL5gzjpN4f/6iqWVBJlht0tQ==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" integrity="sha256-X5PoE3KU5l+JcX+w09p/wHl9AzK333C4hJ2I9S5mD4M=" crossorigin="anonymous"></script>
+
+      
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+        
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/go.min.js"></script>
+        
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/c&#43;&#43;.min.js"></script>
+        
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/c.min.js"></script>
+        
+      
+
+      
+      
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_CHTML-full" integrity="sha256-GhM+5JHb6QUzOQPXSJLEWP7R73CbkisjzK5Eyij4U9w=" crossorigin="anonymous" async></script>
+      
+    
+
+    
+    
+
+    
+    
+    
+
+    
+    
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    
+    
+    <script>
+      const search_index_filename = "/index.json";
+      const i18n = {
+        'placeholder': "搜索...",
+        'results': "搜索结果",
+        'no_results': "没有找到结果"
+      };
+      const content_type = {
+        'post': "文章",
+        'project': "项目",
+        'publication' : "出版物",
+        'talk' : "演讲"
+        };
+    </script>
+    
+
+    
+    
+
+    
+    
+    <script id="search-hit-fuse-template" type="text/x-template">
+      <div class="search-hit" id="summary-{{key}}">
+      <div class="search-hit-content">
+        <div class="search-hit-name">
+          <a href="{{relpermalink}}">{{title}}</a>
+          <div class="article-metadata search-hit-type">{{type}}</div>
+          <p class="search-hit-description">{{snippet}}</p>
+        </div>
+      </div>
+      </div>
+    </script>
+    
+
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js" integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    <script src="/js/academic.min.14cafafda844d960749b7551524d1c3a.js"></script>
+
+    
+
+  </body>
+</html>
+

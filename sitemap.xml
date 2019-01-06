@@ -4,6 +4,16 @@
     
     <url>
     
+      <loc>https://RyanAdex.github.io/2019/01/06/lanedetection/</loc>
+      <lastmod>2019-01-06T16:18:16+08:00</lastmod>
+      <changefreq>monthly</changefreq>
+      <priority>0.5</priority>
+    </url>
+    
+  
+    
+    <url>
+    
       <loc>https://RyanAdex.github.io/2018/12/09/queue/</loc>
       <lastmod>2018-12-09T20:29:13+08:00</lastmod>
       <changefreq>monthly</changefreq>
@@ -105,7 +115,7 @@
     <url>
     
       <loc>https://RyanAdex.github.io/tags/c&#43;&#43;/</loc>
-      <lastmod>2018-12-09T20:29:13+08:00</lastmod>
+      <lastmod>2019-01-06T16:18:16+08:00</lastmod>
       <changefreq>monthly</changefreq>
       <priority>0</priority>
     </url>
@@ -124,7 +134,17 @@
     <url>
     
       <loc>https://RyanAdex.github.io/tags/go/</loc>
-      <lastmod>2018-12-09T20:29:13+08:00</lastmod>
+      <lastmod>2019-01-06T16:18:16+08:00</lastmod>
+      <changefreq>monthly</changefreq>
+      <priority>0</priority>
+    </url>
+    
+  
+    
+    <url>
+    
+      <loc>https://RyanAdex.github.io/tags/lane_detection/</loc>
+      <lastmod>2019-01-06T16:18:16+08:00</lastmod>
       <changefreq>monthly</changefreq>
       <priority>0</priority>
     </url>
@@ -184,6 +204,16 @@
     
       <loc>https://RyanAdex.github.io/tags/leetcode/</loc>
       <lastmod>2018-12-09T20:29:13+08:00</lastmod>
+      <changefreq>monthly</changefreq>
+      <priority>0</priority>
+    </url>
+    
+  
+    
+    <url>
+    
+      <loc>https://RyanAdex.github.io/tags/opencv/</loc>
+      <lastmod>2019-01-06T16:18:16+08:00</lastmod>
       <changefreq>monthly</changefreq>
       <priority>0</priority>
     </url>

@@ -354,7 +354,7 @@
 <p>给定一个由 &lsquo;1&rsquo;（陆地）和 &lsquo;0&rsquo;（水）组成的的二维网格，计算岛屿的数量。一个岛被水包围，并且它是通过水平方向或垂直方向上相邻的陆地连接而成的。你可以假设网格的四个边均被水包围。
 示例1：</p>
 
-<pre><code>输入:
+<pre><code class="language-ascii">输入:
 11110
 11010
 11000
@@ -380,7 +380,7 @@
 本题输入是一个二维数组，判断一个岛屿的要素是判断是否该陆地（1）<code>上下左右</code>是否被水（0）包围，也就是说，岛屿的数量=联通陆地（1）的数量。
 <code>BFS</code>算法题解如下，通过找到为岛（1）的初始点，然后对临近的岛屿进行依次访问，利用队列对访问的岛屿进行储存，如下列图示:</p>
 
-<pre><code>  +-----&gt;
+<pre><code class="language-ascii">  +-----&gt;
  +-+
 ++1|1 1 1 0
 +--+
@@ -672,6 +672,11 @@ func numIslands(grid [][]byte) int {
     <div class="article-widget">
       <div class="post-nav">
   
+  <div class="post-nav-item">
+    <div class="meta-nav">下一页</div>
+    <a href="https://RyanAdex.github.io/2019/01/06/lanedetection/" rel="next">车道线检测/Opencv/传统方法</a>
+  </div>
+  
   
   <div class="post-nav-item">
     <div class="meta-nav">上一页</div>
@@ -685,7 +690,6 @@ func numIslands(grid [][]byte) int {
 
     
  
-
 
 <div id="gitalk-container"></div>
  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
