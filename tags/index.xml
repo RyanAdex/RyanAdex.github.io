@@ -33,7 +33,7 @@
     <item>
       <title>C&#43;&#43;</title>
       <link>https://RyanAdex.github.io/tags/c&#43;&#43;/</link>
-      <pubDate>Sun, 06 Jan 2019 16:18:16 +0800</pubDate>
+      <pubDate>Tue, 15 Jan 2019 23:43:58 +0800</pubDate>
       
       <guid>https://RyanAdex.github.io/tags/c&#43;&#43;/</guid>
       <description></description>
@@ -58,6 +58,15 @@
     </item>
     
     <item>
+      <title>anaconda</title>
+      <link>https://RyanAdex.github.io/tags/anaconda/</link>
+      <pubDate>Tue, 15 Jan 2019 23:37:14 +0800</pubDate>
+      
+      <guid>https://RyanAdex.github.io/tags/anaconda/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>cookie</title>
       <link>https://RyanAdex.github.io/tags/cookie/</link>
       <pubDate>Tue, 04 Dec 2018 20:29:47 +0800</pubDate>
@@ -67,11 +76,29 @@
     </item>
     
     <item>
+      <title>docker</title>
+      <link>https://RyanAdex.github.io/tags/docker/</link>
+      <pubDate>Tue, 15 Jan 2019 23:37:14 +0800</pubDate>
+      
+      <guid>https://RyanAdex.github.io/tags/docker/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>html</title>
       <link>https://RyanAdex.github.io/tags/html/</link>
       <pubDate>Tue, 04 Dec 2018 20:29:47 +0800</pubDate>
       
       <guid>https://RyanAdex.github.io/tags/html/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>jupyter</title>
+      <link>https://RyanAdex.github.io/tags/jupyter/</link>
+      <pubDate>Tue, 15 Jan 2019 23:37:14 +0800</pubDate>
+      
+      <guid>https://RyanAdex.github.io/tags/jupyter/</guid>
       <description></description>
     </item>
     
@@ -87,7 +114,7 @@
     <item>
       <title>opencv</title>
       <link>https://RyanAdex.github.io/tags/opencv/</link>
-      <pubDate>Sun, 06 Jan 2019 16:18:16 +0800</pubDate>
+      <pubDate>Tue, 15 Jan 2019 23:43:58 +0800</pubDate>
       
       <guid>https://RyanAdex.github.io/tags/opencv/</guid>
       <description></description>
@@ -99,6 +126,15 @@
       <pubDate>Wed, 28 Nov 2018 13:28:46 +0800</pubDate>
       
       <guid>https://RyanAdex.github.io/tags/windows/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>yolov3</title>
+      <link>https://RyanAdex.github.io/tags/yolov3/</link>
+      <pubDate>Tue, 15 Jan 2019 23:43:58 +0800</pubDate>
+      
+      <guid>https://RyanAdex.github.io/tags/yolov3/</guid>
       <description></description>
     </item>
     

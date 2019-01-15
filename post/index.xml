@@ -13,6 +13,24 @@
     
     
     <item>
+      <title>Opencv&#43;YOLO3目标检测/C&#43;&#43;</title>
+      <link>https://RyanAdex.github.io/2019/01/15/opencv-yolov3/</link>
+      <pubDate>Tue, 15 Jan 2019 23:43:58 +0800</pubDate>
+      
+      <guid>https://RyanAdex.github.io/2019/01/15/opencv-yolov3/</guid>
+      <description>1. 引言 YOLO3能够快速识别图片和视频中的80种物体，而且实时性强，准确度接近SSD。 Opencv是目前最流行的开源图像处理库，使用Open</description>
+    </item>
+    
+    <item>
+      <title>Docker与anaconda&#43;jupyter</title>
+      <link>https://RyanAdex.github.io/2019/01/15/docker-jupyter/</link>
+      <pubDate>Tue, 15 Jan 2019 23:37:14 +0800</pubDate>
+      
+      <guid>https://RyanAdex.github.io/2019/01/15/docker-jupyter/</guid>
+      <description>Arch docker的安装 //pacman 安装docker sudo pacman -S docker //docker启动 sudo systemctl start docker //设置开机启动docker sudo systemctl enable docker //将用户添加到docker组</description>
+    </item>
+    
+    <item>
       <title>车道线检测/Opencv/传统方法</title>
       <link>https://RyanAdex.github.io/2019/01/06/lanedetection/</link>
       <pubDate>Sun, 06 Jan 2019 16:18:16 +0800</pubDate>

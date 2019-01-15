@@ -11,6 +11,483 @@
     <atom:link href="/" rel="self" type="application/rss+xml" />
     
     <item>
+      <title>Opencv&#43;YOLO3目标检测/C&#43;&#43;</title>
+      <link>https://RyanAdex.github.io/2019/01/15/opencv-yolov3/</link>
+      <pubDate>Tue, 15 Jan 2019 23:43:58 +0800</pubDate>
+      
+      <guid>https://RyanAdex.github.io/2019/01/15/opencv-yolov3/</guid>
+      <description>
+
+&lt;h1 id=&#34;1-引言&#34;&gt;1. 引言&lt;/h1&gt;
+
+&lt;p&gt;YOLO3能够快速识别图片和视频中的80种物体，而且实时性强，准确度接近SSD。
+Opencv是目前最流行的开源图像处理库，使用Opencv能够非常方便的对图像进行处理。
+Opencv4.0已经包含DNN相关的库函数，可以非常方便的调用训练好的YOLO3模型使用。&lt;/p&gt;
+
+&lt;h1 id=&#34;2-采用yolo3目标检测&#34;&gt;2. 采用YOLO3目标检测&lt;/h1&gt;
+
+&lt;h2 id=&#34;第一步-下载模型&#34;&gt;第一步：下载模型&lt;/h2&gt;
+
+&lt;p&gt;使用wget下载训练号的模型与COCO数据库。
+COCO数据库包含了识别的类型名。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;wget https://pjreddie.com/media/files/yolov3.weights
+wget https://github.com/pjreddie/darknet/blob/master/cfg/yolov3.cfg?raw=true -O ./yolov3.cfg
+wget https://github.com/pjreddie/darknet/blob/master/data/coco.names?raw=true -O ./coco.names
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;第二步-初始化参数&#34;&gt;第二步：初始化参数&lt;/h2&gt;
+
+&lt;p&gt;YOLOv3算法的预测结果就是边界框。每一个边界框都旁随着一个置信值。第一阶段中，全部低于置信度阀值的都会排除掉。
+对剩余的边界框执行非最大抑制算法，以去除重叠的边界框。非最大抑制由一个参数nmsThrehold控制。读者可以尝试改变这个数值，观察输出的边界框的改变。
+接下来，设置输入图片的宽度（inpWidth）和高度（inpHeight）。我们设置他们为416，以便对比YOLOv3作者提供的Darknets的C代码。如果想要更快的速度，读者可以把宽度和高度设置为320。如果想要更准确的结果，改变他们到608。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;float confThreshold = 0.5;//置信度阈值
+float nmsThreshold = 0.4;//非最大抑制阈值
+int inpWidth = 416;//网络输入图片宽度
+int inpHeight = 416;//网络输入图片高度
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;第三步-读取模型和coco数据库&#34;&gt;第三步：读取模型和COCO数据库&lt;/h2&gt;
+
+&lt;p&gt;接下来我们读入COCO数据库并将类名存入vector&lt;string&gt; classes容器。并加载模型与权重文件yolov3.cfg和yolov3.weights。
+最后把DNN的后端设置为OpenCV，目标设置CPU。也可以通过cv::dnn::DNN_TARGET_OPENCL设置目标为GPU。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;//将类名存进容器
+string classesFile = &amp;quot;D:\\Code\\C++\\YOLO3-detecction\\coco.names&amp;quot;;//coco.names包含80种不同的类名
+ifstream ifs(classesFile.c_str());
+string line;
+while(getline(ifs,line))classes.push_back(line);
+//取得模型的配置和权重文件
+cv::String modelConfiguration = &amp;quot;D:\\Code\\C++\\YOLO3-detecction\\yolov3.cfg&amp;quot;;
+cv::String modelWeights = &amp;quot;D:\\Code\\C++\\YOLO3-detecction\\yolov3.weights&amp;quot;;
+//加载网络
+cv::dnn::Net net = cv::dnn::readNetFromDarknet(modelConfiguration,modelWeights);
+net.setPreferableBackend(cv::dnn::DNN_BACKEND_OPENCV);
+net.setPreferableBackend(cv::dnn::DNN_TARGET_OPENCL);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;第四步-读取输入&#34;&gt;第四步：读取输入&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;//打开视频文件或者图形文件或者相机数据流
+string str, outputFile;
+cv::VideoCapture cap(&amp;quot;D:\\Code\\C++\\YOLO3-detecction\\run.mp4&amp;quot;);
+cv::VideoWriter video;
+cv::Mat frame,blob;
+//开启摄像头
+// cv::VideoCapture cap(1);
+//创建窗口
+static const string kWinName = &amp;quot;Deep learning object detection in OpenCV&amp;quot;;
+cv::namedWindow(kWinName,cv::WINDOW_AUTOSIZE);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;第五步-处理每一帧&#34;&gt;第五步：处理每一帧&lt;/h2&gt;
+
+&lt;p&gt;输入到神经网络的图像需要以一种叫bolb的格式保存。
+读取了输入图片或者视频流的一帧图像后，这帧图像需要经过bolbFromImage()函数处理为神经网络的输入类型bolb。在这个过程中，图像像素以一个1/255的比例因子，被缩放到0到1之间。同时，图像在不裁剪的情况下，大小调整到416x416。注意我们没有降低图像平均值，因此传递[0,0,0]到函数的平均值输入，保持swapRB参数到默认值1。
+输出的bolb传递到网络，经过网络正向处理，网络输出了所预测到的一个边界框清单。这些边界框通过后处理，滤除了低置信值的。我们随后再详细的说明后处理的步骤。我们在每一帧的左上方打印出了推断时间。伴随着最后的边界框的完成，图像保存到硬盘中，之后可以作为图像输入或者通过Videowriter作为视频流输入。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;while(cv::waitKey(1)&amp;lt;0){
+    //取每帧图像
+    cap&amp;gt;&amp;gt;frame;
+    //如果视频播放完则停止程序
+    if(frame.empty()){
+        break;
+    }
+    //在dnn中从磁盘加载图片
+    cv::dnn::blobFromImage(frame,blob,1/255.0,cv::Size(inpWidth,inpHeight));
+    //设置输入
+    net.setInput(blob);
+    //设置输出层
+    vector&amp;lt;cv::Mat&amp;gt; outs;//储存识别结果
+    net.forward(outs,getOutputNames(net));
+    //移除低置信度边界框
+    postprocess(frame,outs);
+    //显示s延时信息并绘制
+    vector&amp;lt;double&amp;gt; layersTimes;
+    double freq = cv::getTickFrequency()/1000;
+    double t=net.getPerfProfile(layersTimes)/freq;
+    string label = cv::format(&amp;quot;Infercence time for a frame:%.2f ms&amp;quot;,t);
+    cv::putText(frame,label,cv::Point(0,15),cv::FONT_HERSHEY_SIMPLEX,0.5,cv::Scalar(0,255,255));
+    //绘制识别框
+    cv::imshow(kWinName,frame);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;第五a步-得到输出层名字&#34;&gt;第五a步：得到输出层名字&lt;/h2&gt;
+
+&lt;p&gt;OpenCV的网络类中的前向功能需要结束层，直到它在网络中运行。因为我们需要运行整个网络，所以我们需要识别网络中的最后一层。我们通过使用getUnconnectedOutLayers()获得未连接的输出层的名字，该层基本就是网络的最后层。然后我们运行前向网络，得到输出，如前面的代码片段（net.forward(getOutputsNames(net))）。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;//从输出层得到名字
+vector&amp;lt;cv::String&amp;gt; getOutputNames(const cv::dnn::Net&amp;amp; net){
+    static vector&amp;lt;cv::String&amp;gt; names;
+    if(names.empty()){
+        //取得输出层指标
+        vector&amp;lt;int&amp;gt; outLayers = net.getUnconnectedOutLayers();
+        vector&amp;lt;cv::String&amp;gt; layersNames = net.getLayerNames();
+        //取得输出层名字
+        names.resize(outLayers.size());
+        for(size_t i =0;i&amp;lt;outLayers.size();i++){
+            names[i] = layersNames[outLayers[i]-1];
+        }
+    }
+    return names;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;第五b步-后处理网络输出&#34;&gt;第五b步：后处理网络输出&lt;/h2&gt;
+
+&lt;p&gt;网络输出的每个边界框都分别由一个包含着类别名字和5个元素的向量表示。
+头四个元素代表center_x, center_y, width和height。第五个元素表示包含着目标的边界框的置信度。
+其余的元素是和每个类别（如目标种类）有关的置信度。边界框分配给最高分数对应的那一种类。
+一个边界框的最高分数也叫做它的置信度（confidence）。如果边界框的置信度低于规定的阀值，算法上不再处理这个边界框。
+置信度大于或等于置信度阀值的边界框，将进行非最大抑制。这会减少重叠的边界框数目。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;//移除低置信度边界框
+void postprocess(cv::Mat&amp;amp; frame,const vector&amp;lt;cv::Mat&amp;gt;&amp;amp; outs){
+    vector&amp;lt;int&amp;gt; classIds;//储存识别类的索引
+    vector&amp;lt;float&amp;gt; confidences;//储存置信度
+    vector&amp;lt;cv::Rect&amp;gt; boxes;//储存边框
+    for(size_t i=0;i&amp;lt;outs.size();i++){
+    //从网络输出中扫描所有边界框
+    //保留高置信度选框
+    //目标数据data:x,y,w,h为百分比，x,y为目标中心点坐标
+        float* data = (float*)outs[i].data;
+        for(int j=0;j&amp;lt;outs[i].rows;j++,data+=outs[i].cols){
+            cv::Mat scores = outs[i].row(j).colRange(5,outs[i].cols);
+            cv::Point classIdPoint;
+            double confidence;//置信度
+            //取得最大分数值与索引
+            cv::minMaxLoc(scores,0,&amp;amp;confidence,0,&amp;amp;classIdPoint);
+            if(confidence&amp;gt;confThreshold){
+                int centerX = (int)(data[0]*frame.cols);
+                int centerY = (int)(data[1]*frame.rows);
+                int width = (int)(data[2]*frame.cols);
+                int height = (int)(data[3]*frame.rows);
+                int left = centerX-width/2;
+                int top = centerY-height/2;
+                classIds.push_back(classIdPoint.x);
+                       confidences.push_back((float)confidence);
+                       boxes.push_back(cv::Rect(left, top, width, height));
+            }
+        }
+    }
+    //低置信度
+    vector&amp;lt;int&amp;gt; indices;//保存没有重叠边框的索引
+    //该函数用于抑制重叠边框
+    cv::dnn::NMSBoxes(boxes,confidences,confThreshold,nmsThreshold,indices);
+    for(size_t i=0;i&amp;lt;indices.size();i++){
+        int idx = indices[i];
+        cv::Rect box = boxes[idx];
+        drawPred(classIds[idx],confidences[idx],box.x,box.y,
+        box.x+box.width,box.y+box.height,frame);
+    }
+}
+    
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;非最大抑制由参数nmsThreshold控制。如果nmsThreshold设置太少，比如0.1，我们可能检测不到相同或不同种类的重叠目标。如果设置得太高，比如1，可能出现一个目标有多个边界框包围。所以我们在上面的代码使用了0.4这个中间的值。&lt;/p&gt;
+
+&lt;h2 id=&#34;第五c步-画出计算得到的边界框&#34;&gt;第五c步：画出计算得到的边界框&lt;/h2&gt;
+
+&lt;p&gt;最后，经过非最大抑制后，得到了边界框。我们把边界框在输入帧上画出，并标出种类名和置信值。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;//绘制预测边界框
+void drawPred(int classId,float conf,int left,int top,int right,int bottom,cv::Mat&amp;amp; frame){
+    //绘制边界框
+    cv::rectangle(frame,cv::Point(left,top),cv::Point(right,bottom),cv::Scalar(255,178,50),3);
+    string label = cv::format(&amp;quot;%.2f&amp;quot;,conf);
+    if(!classes.empty()){
+        CV_Assert(classId &amp;lt; (int)classes.size());
+        label = classes[classId]+&amp;quot;:&amp;quot;+label;//边框上的类别标签与置信度
+    }
+    //绘制边界框上的标签
+    int baseLine;
+    cv::Size labelSize = cv::getTextSize(label,cv::FONT_HERSHEY_SIMPLEX,0.5,1,&amp;amp;baseLine);
+    top = max(top,labelSize.height);
+    cv::rectangle(frame,cv::Point(left,top-round(1.5*labelSize.height)),cv::Point(left+round(1.5*labelSize.width),top+baseLine),cv::Scalar(255,255,255),cv::FILLED);
+    cv::putText(frame, label,cv::Point(left, top), cv::FONT_HERSHEY_SIMPLEX, 0.75,cv::Scalar(0, 0, 0), 1);
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;3-全部代码&#34;&gt;3. 全部代码&lt;/h1&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;fstream&amp;gt;
+#include &amp;lt;vector&amp;gt;
+#include &amp;lt;string&amp;gt;
+#include &amp;lt;opencv.hpp&amp;gt;
+using namespace std;
+
+vector&amp;lt;string&amp;gt; classes;//储存名字的容器
+float confThreshold = 0.5;//置信度阈值
+float nmsThreshold = 0.4;//非最大抑制阈值
+int inpWidth = 416;//网络输入图片宽度
+int inpHeight = 416;//网络输入图片高度
+//移除低置信度边界框
+void postprocess(cv::Mat&amp;amp; frame,const vector&amp;lt;cv::Mat&amp;gt;&amp;amp; out);
+//画出预测边界框
+void drawPred(int classId,float conf,int left,int top,int right,int bottom,cv::Mat&amp;amp; frame);
+//取得输出层的名字
+vector&amp;lt;cv::String&amp;gt; getOutputNames(const cv::dnn::Net&amp;amp; net);
+main(int argc, char const *argv[])
+{
+    //将类名存进容器
+    string classesFile = &amp;quot;D:\\Code\\C++\\YOLO3-detecction\\coco.names&amp;quot;;//coco.names包含80种不同的类名
+    ifstream ifs(classesFile.c_str());
+    string line;
+    while(getline(ifs,line))classes.push_back(line);
+
+    //取得模型的配置和权重文件
+    cv::String modelConfiguration = &amp;quot;D:\\Code\\C++\\YOLO3-detecction\\yolov3.cfg&amp;quot;;
+    cv::String modelWeights = &amp;quot;D:\\Code\\C++\\YOLO3-detecction\\yolov3.weights&amp;quot;;
+
+    //加载网络
+    cv::dnn::Net net = cv::dnn::readNetFromDarknet(modelConfiguration,modelWeights);
+    net.setPreferableBackend(cv::dnn::DNN_BACKEND_OPENCV);
+    net.setPreferableBackend(cv::dnn::DNN_TARGET_CPU);
+
+    //打开视频文件或者图形文件或者相机数据流
+    string str, outputFile;
+    cv::VideoCapture cap(&amp;quot;D:\\Code\\C++\\YOLO3-detecction\\run.mp4&amp;quot;);
+    cv::VideoWriter video;
+    cv::Mat frame,blob;
+    //开启摄像头
+    // cv::VideoCapture cap(1);
+    //创建窗口
+    static const string kWinName = &amp;quot;Deep learning object detection in OpenCV&amp;quot;;
+    cv::namedWindow(kWinName,cv::WINDOW_AUTOSIZE);
+
+    //处理每帧
+    while(cv::waitKey(1)&amp;lt;0){
+        //取每帧图像
+        cap&amp;gt;&amp;gt;frame;
+        //如果视频播放完则停止程序
+        if(frame.empty()){
+            break;
+        }
+        //在dnn中从磁盘加载图片
+        cv::dnn::blobFromImage(frame,blob,1/255.0,cv::Size(inpWidth,inpHeight));
+        //设置输入网络
+        net.setInput(blob);
+        //设置输出层
+        vector&amp;lt;cv::Mat&amp;gt; outs;//储存识别结果
+        net.forward(outs,getOutputNames(net));
+        //移除低置信度边界框
+        postprocess(frame,outs);
+        //显示s延时信息并绘制
+        vector&amp;lt;double&amp;gt; layersTimes;
+        double freq = cv::getTickFrequency()/1000;
+        double t=net.getPerfProfile(layersTimes)/freq;
+        string label = cv::format(&amp;quot;Infercence time for a frame:%.2f ms&amp;quot;,t);
+        cv::putText(frame,label,cv::Point(0,15),cv::FONT_HERSHEY_SIMPLEX,0.5,cv::Scalar(0,255,255));
+        //绘制识别框
+        cv::Mat detecteFrame;
+        frame.convertTo(detecteFrame,CV_8U);
+        cv::imshow(kWinName,frame);
+    }
+    cap.release();
+    return 0;
+}
+//移除低置信度边界框
+void postprocess(cv::Mat&amp;amp; frame,const vector&amp;lt;cv::Mat&amp;gt;&amp;amp; outs){
+    vector&amp;lt;int&amp;gt; classIds;//储存识别类的索引
+    vector&amp;lt;float&amp;gt; confidences;//储存置信度
+    vector&amp;lt;cv::Rect&amp;gt; boxes;//储存边框
+
+    for(size_t i=0;i&amp;lt;outs.size();i++){
+        //从网络输出中扫描所有边界框
+        //保留高置信度选框
+        //目标数据data:x,y,w,h为百分比，x,y为目标中心点坐标
+        float* data = (float*)outs[i].data;
+        for(int j=0;j&amp;lt;outs[i].rows;j++,data+=outs[i].cols){
+            cv::Mat scores = outs[i].row(j).colRange(5,outs[i].cols);
+            cv::Point classIdPoint;
+            double confidence;//置信度
+            //取得最大分数值与索引
+            cv::minMaxLoc(scores,0,&amp;amp;confidence,0,&amp;amp;classIdPoint);
+            if(confidence&amp;gt;confThreshold){
+                int centerX = (int)(data[0]*frame.cols);
+                int centerY = (int)(data[1]*frame.rows);
+                int width = (int)(data[2]*frame.cols);
+                int height = (int)(data[3]*frame.rows);
+                int left = centerX-width/2;
+                int top = centerY-height/2;
+
+                classIds.push_back(classIdPoint.x);
+                confidences.push_back((float)confidence);
+                boxes.push_back(cv::Rect(left, top, width, height));
+            }
+
+        }
+        
+    }
+
+    //低置信度
+    vector&amp;lt;int&amp;gt; indices;//保存没有重叠边框的索引
+    //该函数用于抑制重叠边框
+    cv::dnn::NMSBoxes(boxes,confidences,confThreshold,nmsThreshold,indices);
+    for(size_t i=0;i&amp;lt;indices.size();i++){
+        int idx = indices[i];
+        cv::Rect box = boxes[idx];
+        drawPred(classIds[idx],confidences[idx],box.x,box.y,
+        box.x+box.width,box.y+box.height,frame);
+    }
+}
+
+//绘制预测边界框
+void drawPred(int classId,float conf,int left,int top,int right,int bottom,cv::Mat&amp;amp; frame){
+    //绘制边界框
+    cv::rectangle(frame,cv::Point(left,top),cv::Point(right,bottom),cv::Scalar(255,178,50),3);
+
+    string label = cv::format(&amp;quot;%.2f&amp;quot;,conf);
+    if(!classes.empty()){
+        CV_Assert(classId &amp;lt; (int)classes.size());
+        label = classes[classId]+&amp;quot;:&amp;quot;+label;//边框上的类别标签与置信度
+    }
+    //绘制边界框上的标签
+    int baseLine;
+    cv::Size labelSize = cv::getTextSize(label,cv::FONT_HERSHEY_SIMPLEX,0.5,1,&amp;amp;baseLine);
+    top = max(top,labelSize.height);
+    cv::rectangle(frame,cv::Point(left,top-round(1.5*labelSize.height)),cv::Point(left+round(1.5*labelSize.width),top+baseLine),cv::Scalar(255,255,255),cv::FILLED);
+    cv::putText(frame, label,cv::Point(left, top), cv::FONT_HERSHEY_SIMPLEX, 0.75,cv::Scalar(0, 0, 0), 1);
+}
+
+//从输出层得到名字
+vector&amp;lt;cv::String&amp;gt; getOutputNames(const cv::dnn::Net&amp;amp; net){
+    static vector&amp;lt;cv::String&amp;gt; names;
+    if(names.empty()){
+        //取得输出层指标
+        vector&amp;lt;int&amp;gt; outLayers = net.getUnconnectedOutLayers();
+        vector&amp;lt;cv::String&amp;gt; layersNames = net.getLayerNames();
+        //取得输出层名字
+        names.resize(outLayers.size());
+        for(size_t i =0;i&amp;lt;outLayers.size();i++){
+            names[i] = layersNames[outLayers[i]-1];
+        }
+    }
+    return names;
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Docker与anaconda&#43;jupyter</title>
+      <link>https://RyanAdex.github.io/2019/01/15/docker-jupyter/</link>
+      <pubDate>Tue, 15 Jan 2019 23:37:14 +0800</pubDate>
+      
+      <guid>https://RyanAdex.github.io/2019/01/15/docker-jupyter/</guid>
+      <description>
+
+&lt;h1 id=&#34;arch-docker的安装&#34;&gt;Arch docker的安装&lt;/h1&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;//pacman 安装docker
+ sudo pacman -S docker
+//docker启动
+ sudo systemctl start docker
+//设置开机启动docker
+ sudo systemctl enable docker
+//将用户添加到docker组
+ sudo gpasswd -a [usr] docker
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;//docker 常用命令
+ docker info
+ docker images
+ docker ps
+ docker -h
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;docker进行配置&#34;&gt;docker进行配置&lt;/h1&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;//解决docker pull timeout
+ sudo vi /etc/docker/daemon.json  
+//添加
+{
+  &amp;quot;registry-mirrors&amp;quot;: [&amp;quot;https://docker.mirrors.ustc.edu.cn&amp;quot;]
+}
+//拉取ubuntu到本地
+ sudo docker pull ubuntu
+//查看本地的镜像
+ sudo docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+hello-world         latest              fce289e99eb9        2 weeks ago         1.84kB
+ubuntu              latest              1d9c17228a9e        2 weeks ago         86.7MB
+//运行镜像，创建一个容器 ：
+//-p 将本地端口的9900映射到容器端口的8888 
+//  -v 将本地目录/root/JupyterNotebook挂载到容器的/JupyterNotebook 也可以不需要
+ sudo docker run -it -p 9900:8888 -v /root/JupyterNotebook:/JupyterNotebook 1d9c17228a9e  /bin/bash
+//这时就已经进入容器了
+ root@1912314cf2b6:/# 
+//更新源
+ root@1912314cf2b6:/# apt-get update
+//安装wget下载anaconda
+ root@1912314cf2b6:/# wget https://repo.anaconda.com/archive/Anaconda3-2018.12-Linux-x86_64.sh
+//运行脚本，一路回车按照提示就行
+ root@1912314cf2b6:/# bash Anaconda3-2018.12-Linux-x86_64.sh
+//source一下bash
+ root@1912314cf2b6:/# source /root/.bashrc root@1912314cf2b6:/# rm -rf Anaconda3-2018.12-Linux-x86_64.sh
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;jupyter-notebook配置&#34;&gt;jupyter Notebook配置&lt;/h1&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;//生成配置文件
+ root@1912314cf2b6:/# jupyter notebook --generate-config
+//生成密钥
+ root@1912314cf2b6:/# ipython
+ Python 3.7.0 (default, Jun 28 2018, 13:15:42)
+ Type &#39;copyright&#39;, &#39;credits&#39; or &#39;license&#39; for more information
+ IPython 6.5.0 -- An enhanced Interactive Python. Type &#39;?&#39; for help.
+
+ In [1]: from notebook.auth import passwd
+ In [2]: passwd()
+ Enter password:
+ Verify password:
+ Out[2]: &#39;sha1:4e379475fe85:e9aee4f0b42202fee4f14be37ee8b29ae7dad126&#39;
+ In [3]: exit()
+//&#39;sha1:4e379475fe85:e9aee4f0b42202fee4f14be37ee8b29ae7dad126&#39;这个东西会写到配置文件里复制下来
+//编辑配置文件
+ root@1912314cf2b6:/# vi  /root/.jupyter/jupyter_notebook_config.py
+//在文件末尾写入（如果后面有需要，看文档就好了）
+c.NotebookApp.ip=&#39;*&#39;                       # 设置所有ip可以访问
+c.NotebookApp.password = u&#39;sha:ce...       # 刚才复制的那个密文&#39;
+c.NotebookApp.open_browser = False         # 禁止自动打开浏览器
+c.NotebookApp.port =8888                   #指定打开的端口
+
+//这里写一个脚本用来启动jupyter notebook
+//进入容器
+ docker exec -it ubuntu /bin/bash
+ root@1912314cf2b6:/# vim notebook.sh
+#!/bin/bash
+#!/root/.bashrc
+/root/anaconda3/bin/jupyter notebook --allow-root
+
+docker exec -d blissful_blackwell /notebook.sh
+//使用Jupyter Notebook
+ root@1912314cf2b6:/# jupyter notebook --allow-root
+[I 08:47:49.861 NotebookApp] Writing notebook server cookie secret to /root/.local/share/jupyter/runtime/notebook_cookie_secret[W 08:47:50.071 NotebookApp] WARNING: The notebook server is listening on all IP addresses and not using encryption. This is not recommended.
+[I 08:47:50.113 NotebookApp] JupyterLab extension loaded from /root/anaconda3/lib/python3.7/site-packages/jupyterlab[I 08:47:50.113 NotebookApp] JupyterLab application directory is /root/anaconda3/share/jupyter/lab[I 08:47:50.118 NotebookApp] Serving notebooks from local directory: /[I 08:47:50.118 NotebookApp] The Jupyter Notebook is running at:
+[I 08:47:50.118 NotebookApp] http://(eb0788fc375d or 127.0.0.1):8888/[I 08:47:50.118 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+
+//如果访问不了的话，就是主机的端口还没有打开(可以使用telnet来测试你的端口是否允许访问)
+ iptables -I INPUT -p tcp --dport 9900 -m state --state NEW -j ACCEPT
+ iptables-save &amp;gt; /etc/sysconfig/iptables
+ reboot
+
+ docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                         PORTS                    NAMESroot@eb0788fc375d:/# 
+eb0788fc375d        cd6d8154f1e1        &amp;quot;/bin/bash&amp;quot;         46 minutes ago      Up 42 seconds                  0.0.0.0:9900-&amp;gt;8888/tcp   blissful_blackwell
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;结束&#34;&gt;结束&lt;/h1&gt;
+
+&lt;p&gt;最后用docker commit 提交更新image&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
       <title>车道线检测/Opencv/传统方法</title>
       <link>https://RyanAdex.github.io/2019/01/06/lanedetection/</link>
       <pubDate>Sun, 06 Jan 2019 16:18:16 +0800</pubDate>

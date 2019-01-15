@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="generator" content="Source Themes Academic 3.1.1">
+  <meta name="generator" content="Hugo 0.51" />
+  <meta name="author" content="Ryan">
+
+  
+  
+  
+  
+    
+  
+  <meta name="description" content="1. 引言 YOLO3能够快速识别图片和视频中的80种物体，而且实时性强，准确度接近SSD。 Opencv是目前最流行的开源图像处理库，使用Open">
+
+  
+  <link rel="alternate" hreflang="zh-Hans" href="https://RyanAdex.github.io/2019/01/15/opencv-yolov3/">
+
+  
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <meta name="theme-color" content="#4caf50">
+  
+
+  
+  
+  
+  
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" integrity="sha256-ygkqlh3CYSUri3LhQxzdcm0n1EQvH2Y+U5S2idbLtxs=" crossorigin="anonymous">
+
+    
+    
+    
+      
+    
+    
+      
+      
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" crossorigin="anonymous">
+      
+    
+
+    
+
+    
+
+  
+
+  
+  
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:400,700|Merriweather|Roboto+Mono">
+  
+
+  <link rel="stylesheet" href="/styles.css">
+  
+
+  
+  
+  
+
+  
+  <link rel="alternate" href="https://RyanAdex.github.io/index.xml" type="application/rss+xml" title="Ryan&#39;s Blog">
+  <link rel="feed" href="https://RyanAdex.github.io/index.xml" type="application/rss+xml" title="Ryan&#39;s Blog">
+  
+
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="icon" type="image/png" href="/img/icon.png">
+  <link rel="apple-touch-icon" type="image/png" href="/img/icon-192.png">
+
+  <link rel="canonical" href="https://RyanAdex.github.io/2019/01/15/opencv-yolov3/">
+
+  <meta property="twitter:card" content="summary_large_image">
+  
+  <meta property="og:site_name" content="Ryan&#39;s Blog">
+  <meta property="og:url" content="https://RyanAdex.github.io/2019/01/15/opencv-yolov3/">
+  <meta property="og:title" content="Opencv&#43;YOLO3目标检测/C&#43;&#43; | Ryan&#39;s Blog">
+  <meta property="og:description" content="1. 引言 YOLO3能够快速识别图片和视频中的80种物体，而且实时性强，准确度接近SSD。 Opencv是目前最流行的开源图像处理库，使用Open">
+  
+  
+    
+  <meta property="og:image" content="https://RyanAdex.github.io/img/icon-192.png">
+  <meta property="og:locale" content="zh-Hans">
+  
+  <meta property="article:published_time" content="2019-01-15T23:43:58&#43;08:00">
+  
+  <meta property="article:modified_time" content="2019-01-15T23:43:58&#43;08:00">
+  
+
+  
+
+  
+
+  <title>Opencv&#43;YOLO3目标检测/C&#43;&#43; | Ryan&#39;s Blog</title>
+
+</head>
+<body id="top" data-spy="scroll" data-target="#TableOfContents" data-offset="71" >
+  <aside class="search-results" id="search">
+  <div class="container">
+    <section class="search-header fixed-top">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1></h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        <input name="q" id="search-query" placeholder="搜索..." autocapitalize="off"
+        autocomplete="off" autocorrect="off" role="textbox" spellcheck="false" type="search">
+        
+      </div>
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+<nav class="navbar navbar-light fixed-top navbar-expand-lg py-0" id="navbar-main">
+  <div class="container">
+
+    
+      <a class="navbar-brand" href="/">Ryan&#39;s Blog</a>
+      
+      <button type="button" class="navbar-toggler" data-toggle="collapse"
+              data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="切换导航">
+        <span><i class="fas fa-bars"></i></span>
+      </button>
+      
+
+    
+    <div class="collapse navbar-collapse" id="navbar">
+
+      
+      
+      <ul class="navbar-nav ml-auto">
+        
+
+        
+
+        
+        
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/">
+            
+            <span>主页</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/post">
+            
+            <span>帖子</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+      
+
+        
+
+        
+        <li class="nav-item">
+          <a class="nav-link js-search" href="#"><i class="fas fa-search" aria-hidden="true"></i></a>
+        </li>
+        
+
+        
+      </ul>
+
+    </div>
+  </div>
+</nav>
+
+
+<article class="article" itemscope itemtype="http://schema.org/Article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  
+  
+<div class="article-container pt-3">
+  <h1 itemprop="name">Opencv&#43;YOLO3目标检测/C&#43;&#43;</h1>
+
+  
+
+  
+    
+
+<div class="article-metadata">
+
+  
+  
+  <span itemscope itemprop="author" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ryan">
+  </span>
+  
+
+  <span class="article-date">
+    
+    <meta content="2019-01-15 23:43:58 &#43;0800 CST" itemprop="datePublished">
+    <time datetime="2019-01-15 23:43:58 &#43;0800 CST" itemprop="dateModified">
+      Jan 15, 2019
+    </time>
+  </span>
+  <span itemscope itemprop="publisher" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ryan">
+  </span>
+
+  
+  <span class="middot-divider"></span>
+  <span class="article-reading-time">
+    7 分钟阅读时间
+  </span>
+  
+
+  
+  
+
+  
+
+  
+  
+<div class="share-box" aria-hidden="true">
+  <ul class="share">
+    <li>
+      <a class="twitter"
+         href="https://twitter.com/intent/tweet?text=Opencv%2bYOLO3%e7%9b%ae%e6%a0%87%e6%a3%80%e6%b5%8b%2fC%2b%2b&amp;url=https%3a%2f%2fRyanAdex.github.io%2f2019%2f01%2f15%2fopencv-yolov3%2f"
+         target="_blank" rel="noopener">
+        <i class="fab fa-twitter"></i>
+      </a>
+    </li>
+    <li>
+      <a class="facebook"
+         href="https://www.facebook.com/sharer.php?u=https%3a%2f%2fRyanAdex.github.io%2f2019%2f01%2f15%2fopencv-yolov3%2f"
+         target="_blank" rel="noopener">
+        <i class="fab fa-facebook-f"></i>
+      </a>
+    </li>
+    <li>
+      <a class="linkedin"
+         href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fRyanAdex.github.io%2f2019%2f01%2f15%2fopencv-yolov3%2f&amp;title=Opencv%2bYOLO3%e7%9b%ae%e6%a0%87%e6%a3%80%e6%b5%8b%2fC%2b%2b"
+         target="_blank" rel="noopener">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+    </li>
+    <li>
+      <a class="weibo"
+         href="http://service.weibo.com/share/share.php?url=https%3a%2f%2fRyanAdex.github.io%2f2019%2f01%2f15%2fopencv-yolov3%2f&amp;title=Opencv%2bYOLO3%e7%9b%ae%e6%a0%87%e6%a3%80%e6%b5%8b%2fC%2b%2b"
+         target="_blank" rel="noopener">
+        <i class="fab fa-weibo"></i>
+      </a>
+    </li>
+    <li>
+      <a class="email"
+         href="mailto:?subject=Opencv%2bYOLO3%e7%9b%ae%e6%a0%87%e6%a3%80%e6%b5%8b%2fC%2b%2b&amp;body=https%3a%2f%2fRyanAdex.github.io%2f2019%2f01%2f15%2fopencv-yolov3%2f">
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+  
+
+</div>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style" itemprop="articleBody">
+      
+
+<h1 id="1-引言">1. 引言</h1>
+
+<p>YOLO3能够快速识别图片和视频中的80种物体，而且实时性强，准确度接近SSD。
+Opencv是目前最流行的开源图像处理库，使用Opencv能够非常方便的对图像进行处理。
+Opencv4.0已经包含DNN相关的库函数，可以非常方便的调用训练好的YOLO3模型使用。</p>
+
+<h1 id="2-采用yolo3目标检测">2. 采用YOLO3目标检测</h1>
+
+<h2 id="第一步-下载模型">第一步：下载模型</h2>
+
+<p>使用wget下载训练号的模型与COCO数据库。
+COCO数据库包含了识别的类型名。</p>
+
+<pre><code class="language-shell">wget https://pjreddie.com/media/files/yolov3.weights
+wget https://github.com/pjreddie/darknet/blob/master/cfg/yolov3.cfg?raw=true -O ./yolov3.cfg
+wget https://github.com/pjreddie/darknet/blob/master/data/coco.names?raw=true -O ./coco.names
+</code></pre>
+
+<h2 id="第二步-初始化参数">第二步：初始化参数</h2>
+
+<p>YOLOv3算法的预测结果就是边界框。每一个边界框都旁随着一个置信值。第一阶段中，全部低于置信度阀值的都会排除掉。
+对剩余的边界框执行非最大抑制算法，以去除重叠的边界框。非最大抑制由一个参数nmsThrehold控制。读者可以尝试改变这个数值，观察输出的边界框的改变。
+接下来，设置输入图片的宽度（inpWidth）和高度（inpHeight）。我们设置他们为416，以便对比YOLOv3作者提供的Darknets的C代码。如果想要更快的速度，读者可以把宽度和高度设置为320。如果想要更准确的结果，改变他们到608。</p>
+
+<pre><code class="language-cpp">float confThreshold = 0.5;//置信度阈值
+float nmsThreshold = 0.4;//非最大抑制阈值
+int inpWidth = 416;//网络输入图片宽度
+int inpHeight = 416;//网络输入图片高度
+</code></pre>
+
+<h2 id="第三步-读取模型和coco数据库">第三步：读取模型和COCO数据库</h2>
+
+<p>接下来我们读入COCO数据库并将类名存入vector<string> classes容器。并加载模型与权重文件yolov3.cfg和yolov3.weights。
+最后把DNN的后端设置为OpenCV，目标设置CPU。也可以通过cv::dnn::DNN_TARGET_OPENCL设置目标为GPU。</p>
+
+<pre><code class="language-cpp">//将类名存进容器
+string classesFile = &quot;D:\\Code\\C++\\YOLO3-detecction\\coco.names&quot;;//coco.names包含80种不同的类名
+ifstream ifs(classesFile.c_str());
+string line;
+while(getline(ifs,line))classes.push_back(line);
+//取得模型的配置和权重文件
+cv::String modelConfiguration = &quot;D:\\Code\\C++\\YOLO3-detecction\\yolov3.cfg&quot;;
+cv::String modelWeights = &quot;D:\\Code\\C++\\YOLO3-detecction\\yolov3.weights&quot;;
+//加载网络
+cv::dnn::Net net = cv::dnn::readNetFromDarknet(modelConfiguration,modelWeights);
+net.setPreferableBackend(cv::dnn::DNN_BACKEND_OPENCV);
+net.setPreferableBackend(cv::dnn::DNN_TARGET_OPENCL);
+</code></pre>
+
+<h2 id="第四步-读取输入">第四步：读取输入</h2>
+
+<pre><code class="language-cpp">//打开视频文件或者图形文件或者相机数据流
+string str, outputFile;
+cv::VideoCapture cap(&quot;D:\\Code\\C++\\YOLO3-detecction\\run.mp4&quot;);
+cv::VideoWriter video;
+cv::Mat frame,blob;
+//开启摄像头
+// cv::VideoCapture cap(1);
+//创建窗口
+static const string kWinName = &quot;Deep learning object detection in OpenCV&quot;;
+cv::namedWindow(kWinName,cv::WINDOW_AUTOSIZE);
+</code></pre>
+
+<h2 id="第五步-处理每一帧">第五步：处理每一帧</h2>
+
+<p>输入到神经网络的图像需要以一种叫bolb的格式保存。
+读取了输入图片或者视频流的一帧图像后，这帧图像需要经过bolbFromImage()函数处理为神经网络的输入类型bolb。在这个过程中，图像像素以一个1/255的比例因子，被缩放到0到1之间。同时，图像在不裁剪的情况下，大小调整到416x416。注意我们没有降低图像平均值，因此传递[0,0,0]到函数的平均值输入，保持swapRB参数到默认值1。
+输出的bolb传递到网络，经过网络正向处理，网络输出了所预测到的一个边界框清单。这些边界框通过后处理，滤除了低置信值的。我们随后再详细的说明后处理的步骤。我们在每一帧的左上方打印出了推断时间。伴随着最后的边界框的完成，图像保存到硬盘中，之后可以作为图像输入或者通过Videowriter作为视频流输入。</p>
+
+<pre><code class="language-cpp">while(cv::waitKey(1)&lt;0){
+    //取每帧图像
+    cap&gt;&gt;frame;
+    //如果视频播放完则停止程序
+    if(frame.empty()){
+        break;
+    }
+    //在dnn中从磁盘加载图片
+    cv::dnn::blobFromImage(frame,blob,1/255.0,cv::Size(inpWidth,inpHeight));
+    //设置输入
+    net.setInput(blob);
+    //设置输出层
+    vector&lt;cv::Mat&gt; outs;//储存识别结果
+    net.forward(outs,getOutputNames(net));
+    //移除低置信度边界框
+    postprocess(frame,outs);
+    //显示s延时信息并绘制
+    vector&lt;double&gt; layersTimes;
+    double freq = cv::getTickFrequency()/1000;
+    double t=net.getPerfProfile(layersTimes)/freq;
+    string label = cv::format(&quot;Infercence time for a frame:%.2f ms&quot;,t);
+    cv::putText(frame,label,cv::Point(0,15),cv::FONT_HERSHEY_SIMPLEX,0.5,cv::Scalar(0,255,255));
+    //绘制识别框
+    cv::imshow(kWinName,frame);
+}
+</code></pre>
+
+<h2 id="第五a步-得到输出层名字">第五a步：得到输出层名字</h2>
+
+<p>OpenCV的网络类中的前向功能需要结束层，直到它在网络中运行。因为我们需要运行整个网络，所以我们需要识别网络中的最后一层。我们通过使用getUnconnectedOutLayers()获得未连接的输出层的名字，该层基本就是网络的最后层。然后我们运行前向网络，得到输出，如前面的代码片段（net.forward(getOutputsNames(net))）。</p>
+
+<pre><code class="language-cpp">//从输出层得到名字
+vector&lt;cv::String&gt; getOutputNames(const cv::dnn::Net&amp; net){
+    static vector&lt;cv::String&gt; names;
+    if(names.empty()){
+        //取得输出层指标
+        vector&lt;int&gt; outLayers = net.getUnconnectedOutLayers();
+        vector&lt;cv::String&gt; layersNames = net.getLayerNames();
+        //取得输出层名字
+        names.resize(outLayers.size());
+        for(size_t i =0;i&lt;outLayers.size();i++){
+            names[i] = layersNames[outLayers[i]-1];
+        }
+    }
+    return names;
+}
+</code></pre>
+
+<h2 id="第五b步-后处理网络输出">第五b步：后处理网络输出</h2>
+
+<p>网络输出的每个边界框都分别由一个包含着类别名字和5个元素的向量表示。
+头四个元素代表center_x, center_y, width和height。第五个元素表示包含着目标的边界框的置信度。
+其余的元素是和每个类别（如目标种类）有关的置信度。边界框分配给最高分数对应的那一种类。
+一个边界框的最高分数也叫做它的置信度（confidence）。如果边界框的置信度低于规定的阀值，算法上不再处理这个边界框。
+置信度大于或等于置信度阀值的边界框，将进行非最大抑制。这会减少重叠的边界框数目。</p>
+
+<pre><code class="language-cpp">//移除低置信度边界框
+void postprocess(cv::Mat&amp; frame,const vector&lt;cv::Mat&gt;&amp; outs){
+    vector&lt;int&gt; classIds;//储存识别类的索引
+    vector&lt;float&gt; confidences;//储存置信度
+    vector&lt;cv::Rect&gt; boxes;//储存边框
+    for(size_t i=0;i&lt;outs.size();i++){
+    //从网络输出中扫描所有边界框
+    //保留高置信度选框
+    //目标数据data:x,y,w,h为百分比，x,y为目标中心点坐标
+        float* data = (float*)outs[i].data;
+        for(int j=0;j&lt;outs[i].rows;j++,data+=outs[i].cols){
+            cv::Mat scores = outs[i].row(j).colRange(5,outs[i].cols);
+            cv::Point classIdPoint;
+            double confidence;//置信度
+            //取得最大分数值与索引
+            cv::minMaxLoc(scores,0,&amp;confidence,0,&amp;classIdPoint);
+            if(confidence&gt;confThreshold){
+                int centerX = (int)(data[0]*frame.cols);
+                int centerY = (int)(data[1]*frame.rows);
+                int width = (int)(data[2]*frame.cols);
+                int height = (int)(data[3]*frame.rows);
+                int left = centerX-width/2;
+                int top = centerY-height/2;
+                classIds.push_back(classIdPoint.x);
+                       confidences.push_back((float)confidence);
+                       boxes.push_back(cv::Rect(left, top, width, height));
+            }
+        }
+    }
+    //低置信度
+    vector&lt;int&gt; indices;//保存没有重叠边框的索引
+    //该函数用于抑制重叠边框
+    cv::dnn::NMSBoxes(boxes,confidences,confThreshold,nmsThreshold,indices);
+    for(size_t i=0;i&lt;indices.size();i++){
+        int idx = indices[i];
+        cv::Rect box = boxes[idx];
+        drawPred(classIds[idx],confidences[idx],box.x,box.y,
+        box.x+box.width,box.y+box.height,frame);
+    }
+}
+    
+</code></pre>
+
+<p>非最大抑制由参数nmsThreshold控制。如果nmsThreshold设置太少，比如0.1，我们可能检测不到相同或不同种类的重叠目标。如果设置得太高，比如1，可能出现一个目标有多个边界框包围。所以我们在上面的代码使用了0.4这个中间的值。</p>
+
+<h2 id="第五c步-画出计算得到的边界框">第五c步：画出计算得到的边界框</h2>
+
+<p>最后，经过非最大抑制后，得到了边界框。我们把边界框在输入帧上画出，并标出种类名和置信值。</p>
+
+<pre><code class="language-cpp">//绘制预测边界框
+void drawPred(int classId,float conf,int left,int top,int right,int bottom,cv::Mat&amp; frame){
+    //绘制边界框
+    cv::rectangle(frame,cv::Point(left,top),cv::Point(right,bottom),cv::Scalar(255,178,50),3);
+    string label = cv::format(&quot;%.2f&quot;,conf);
+    if(!classes.empty()){
+        CV_Assert(classId &lt; (int)classes.size());
+        label = classes[classId]+&quot;:&quot;+label;//边框上的类别标签与置信度
+    }
+    //绘制边界框上的标签
+    int baseLine;
+    cv::Size labelSize = cv::getTextSize(label,cv::FONT_HERSHEY_SIMPLEX,0.5,1,&amp;baseLine);
+    top = max(top,labelSize.height);
+    cv::rectangle(frame,cv::Point(left,top-round(1.5*labelSize.height)),cv::Point(left+round(1.5*labelSize.width),top+baseLine),cv::Scalar(255,255,255),cv::FILLED);
+    cv::putText(frame, label,cv::Point(left, top), cv::FONT_HERSHEY_SIMPLEX, 0.75,cv::Scalar(0, 0, 0), 1);
+}
+
+</code></pre>
+
+<h1 id="3-全部代码">3. 全部代码</h1>
+
+<pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;fstream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+#include &lt;opencv.hpp&gt;
+using namespace std;
+
+vector&lt;string&gt; classes;//储存名字的容器
+float confThreshold = 0.5;//置信度阈值
+float nmsThreshold = 0.4;//非最大抑制阈值
+int inpWidth = 416;//网络输入图片宽度
+int inpHeight = 416;//网络输入图片高度
+//移除低置信度边界框
+void postprocess(cv::Mat&amp; frame,const vector&lt;cv::Mat&gt;&amp; out);
+//画出预测边界框
+void drawPred(int classId,float conf,int left,int top,int right,int bottom,cv::Mat&amp; frame);
+//取得输出层的名字
+vector&lt;cv::String&gt; getOutputNames(const cv::dnn::Net&amp; net);
+main(int argc, char const *argv[])
+{
+    //将类名存进容器
+    string classesFile = &quot;D:\\Code\\C++\\YOLO3-detecction\\coco.names&quot;;//coco.names包含80种不同的类名
+    ifstream ifs(classesFile.c_str());
+    string line;
+    while(getline(ifs,line))classes.push_back(line);
+
+    //取得模型的配置和权重文件
+    cv::String modelConfiguration = &quot;D:\\Code\\C++\\YOLO3-detecction\\yolov3.cfg&quot;;
+    cv::String modelWeights = &quot;D:\\Code\\C++\\YOLO3-detecction\\yolov3.weights&quot;;
+
+    //加载网络
+    cv::dnn::Net net = cv::dnn::readNetFromDarknet(modelConfiguration,modelWeights);
+    net.setPreferableBackend(cv::dnn::DNN_BACKEND_OPENCV);
+    net.setPreferableBackend(cv::dnn::DNN_TARGET_CPU);
+
+    //打开视频文件或者图形文件或者相机数据流
+    string str, outputFile;
+    cv::VideoCapture cap(&quot;D:\\Code\\C++\\YOLO3-detecction\\run.mp4&quot;);
+    cv::VideoWriter video;
+    cv::Mat frame,blob;
+    //开启摄像头
+    // cv::VideoCapture cap(1);
+    //创建窗口
+    static const string kWinName = &quot;Deep learning object detection in OpenCV&quot;;
+    cv::namedWindow(kWinName,cv::WINDOW_AUTOSIZE);
+
+    //处理每帧
+    while(cv::waitKey(1)&lt;0){
+        //取每帧图像
+        cap&gt;&gt;frame;
+        //如果视频播放完则停止程序
+        if(frame.empty()){
+            break;
+        }
+        //在dnn中从磁盘加载图片
+        cv::dnn::blobFromImage(frame,blob,1/255.0,cv::Size(inpWidth,inpHeight));
+        //设置输入网络
+        net.setInput(blob);
+        //设置输出层
+        vector&lt;cv::Mat&gt; outs;//储存识别结果
+        net.forward(outs,getOutputNames(net));
+        //移除低置信度边界框
+        postprocess(frame,outs);
+        //显示s延时信息并绘制
+        vector&lt;double&gt; layersTimes;
+        double freq = cv::getTickFrequency()/1000;
+        double t=net.getPerfProfile(layersTimes)/freq;
+        string label = cv::format(&quot;Infercence time for a frame:%.2f ms&quot;,t);
+        cv::putText(frame,label,cv::Point(0,15),cv::FONT_HERSHEY_SIMPLEX,0.5,cv::Scalar(0,255,255));
+        //绘制识别框
+        cv::Mat detecteFrame;
+        frame.convertTo(detecteFrame,CV_8U);
+        cv::imshow(kWinName,frame);
+    }
+    cap.release();
+    return 0;
+}
+//移除低置信度边界框
+void postprocess(cv::Mat&amp; frame,const vector&lt;cv::Mat&gt;&amp; outs){
+    vector&lt;int&gt; classIds;//储存识别类的索引
+    vector&lt;float&gt; confidences;//储存置信度
+    vector&lt;cv::Rect&gt; boxes;//储存边框
+
+    for(size_t i=0;i&lt;outs.size();i++){
+        //从网络输出中扫描所有边界框
+        //保留高置信度选框
+        //目标数据data:x,y,w,h为百分比，x,y为目标中心点坐标
+        float* data = (float*)outs[i].data;
+        for(int j=0;j&lt;outs[i].rows;j++,data+=outs[i].cols){
+            cv::Mat scores = outs[i].row(j).colRange(5,outs[i].cols);
+            cv::Point classIdPoint;
+            double confidence;//置信度
+            //取得最大分数值与索引
+            cv::minMaxLoc(scores,0,&amp;confidence,0,&amp;classIdPoint);
+            if(confidence&gt;confThreshold){
+                int centerX = (int)(data[0]*frame.cols);
+                int centerY = (int)(data[1]*frame.rows);
+                int width = (int)(data[2]*frame.cols);
+                int height = (int)(data[3]*frame.rows);
+                int left = centerX-width/2;
+                int top = centerY-height/2;
+
+                classIds.push_back(classIdPoint.x);
+                confidences.push_back((float)confidence);
+                boxes.push_back(cv::Rect(left, top, width, height));
+            }
+
+        }
+        
+    }
+
+    //低置信度
+    vector&lt;int&gt; indices;//保存没有重叠边框的索引
+    //该函数用于抑制重叠边框
+    cv::dnn::NMSBoxes(boxes,confidences,confThreshold,nmsThreshold,indices);
+    for(size_t i=0;i&lt;indices.size();i++){
+        int idx = indices[i];
+        cv::Rect box = boxes[idx];
+        drawPred(classIds[idx],confidences[idx],box.x,box.y,
+        box.x+box.width,box.y+box.height,frame);
+    }
+}
+
+//绘制预测边界框
+void drawPred(int classId,float conf,int left,int top,int right,int bottom,cv::Mat&amp; frame){
+    //绘制边界框
+    cv::rectangle(frame,cv::Point(left,top),cv::Point(right,bottom),cv::Scalar(255,178,50),3);
+
+    string label = cv::format(&quot;%.2f&quot;,conf);
+    if(!classes.empty()){
+        CV_Assert(classId &lt; (int)classes.size());
+        label = classes[classId]+&quot;:&quot;+label;//边框上的类别标签与置信度
+    }
+    //绘制边界框上的标签
+    int baseLine;
+    cv::Size labelSize = cv::getTextSize(label,cv::FONT_HERSHEY_SIMPLEX,0.5,1,&amp;baseLine);
+    top = max(top,labelSize.height);
+    cv::rectangle(frame,cv::Point(left,top-round(1.5*labelSize.height)),cv::Point(left+round(1.5*labelSize.width),top+baseLine),cv::Scalar(255,255,255),cv::FILLED);
+    cv::putText(frame, label,cv::Point(left, top), cv::FONT_HERSHEY_SIMPLEX, 0.75,cv::Scalar(0, 0, 0), 1);
+}
+
+//从输出层得到名字
+vector&lt;cv::String&gt; getOutputNames(const cv::dnn::Net&amp; net){
+    static vector&lt;cv::String&gt; names;
+    if(names.empty()){
+        //取得输出层指标
+        vector&lt;int&gt; outLayers = net.getUnconnectedOutLayers();
+        vector&lt;cv::String&gt; layersNames = net.getLayerNames();
+        //取得输出层名字
+        names.resize(outLayers.size());
+        for(size_t i =0;i&lt;outLayers.size();i++){
+            names[i] = layersNames[outLayers[i]-1];
+        }
+    }
+    return names;
+}
+</code></pre>
+
+    </div>
+
+    
+
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tags/opencv/">opencv</a>
+  
+  <a class="badge badge-light" href="/tags/yolov3/">yolov3</a>
+  
+  <a class="badge badge-light" href="/tags/c&#43;&#43;/">C&#43;&#43;</a>
+  
+</div>
+
+
+
+    
+
+
+
+
+
+
+<div class="media author-card" itemscope itemtype="http://schema.org/Person">
+  
+  <img class="portrait mr-3" src="https://s.gravatar.com/avatar/b493fcabac7c264287d1cc64313d6eb2?s=200')" itemprop="image" alt="Avatar">
+  
+  <div class="media-body">
+    <h5 class="card-title" itemprop="name"><a href="/">Ryan</a></h5>
+    <h6 class="card-subtitle">Self Driving Car Engineer</h6>
+    
+    <ul class="network-icon" aria-hidden="true">
+      
+      
+      
+      
+        
+      
+      
+      
+      
+      
+      <li>
+        <a itemprop="sameAs" href="mailto:ryan-adex@outlook.com" >
+          <i class="fas fa-envelope"></i>
+        </a>
+      </li>
+      
+      
+      
+      
+        
+      
+      
+      
+      
+      
+        
+      
+      <li>
+        <a itemprop="sameAs" href="https://github.com/RyanAdex" target="_blank" rel="noopener">
+          <i class="fab fa-github"></i>
+        </a>
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+
+
+    
+    
+    <div class="article-widget">
+      <div class="hr-light"></div>
+      <h3>相关</h3>
+      <ul>
+        
+        <li><a href="/2019/01/06/lanedetection/">车道线检测/Opencv/传统方法</a></li>
+        
+        <li><a href="/2018/12/09/queue/">LeetCode 队列与BFS--岛屿的数量</a></li>
+        
+      </ul>
+    </div>
+    
+
+    
+    <div class="article-widget">
+      <div class="post-nav">
+  
+  
+  <div class="post-nav-item">
+    <div class="meta-nav">上一页</div>
+    <a href="https://RyanAdex.github.io/2019/01/15/docker-jupyter/" rel="prev">Docker与anaconda&#43;jupyter</a>
+  </div>
+  
+</div>
+
+    </div>
+    
+
+    
+ 
+
+<div id="gitalk-container"></div>
+ <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+ <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+<script>
+  const gitalk = new Gitalk({
+  clientID: '32eab8d6f4dcc1fe269c',
+  clientSecret: '56ef17c133c08bd3eacdaeeca59115797dc5646d',
+  repo: 'RyanAdex.github.io',
+  owner: 'RyanAdex',
+  admin: ['RyanAdex'],
+  id: location.pathname,      
+  distractionFreeMode: false  
+})
+
+gitalk.render('gitalk-container')
+</script>
+
+
+  </div>
+</article>
+
+<div class="container">
+  <footer class="site-footer">
+  
+
+  <p class="powered-by">
+    &copy; 2018 &middot; 
+    RyanAdex.github.io All Rights Reserved
+    
+
+    
+    <span class="float-right" aria-hidden="true">
+      <a href="#" id="back_to_top">
+        <span class="button_icon">
+          <i class="fas fa-chevron-up fa-2x"></i>
+        </span>
+      </a>
+    </span>
+    
+  </p>
+</footer>
+
+</div>
+
+
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">引用</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> 复制
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> 下载
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+    
+    
+    <script src="/js/mathjax-config.js"></script>
+    
+
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha512-+NqPlbbtM1QqiK8ZAo4Yrj2c4lNQoGv8P79DPtKzj++l5jnN39rHA/xsqn8zE9l0uSoxaCdrOgFs6yjyfbBxSg==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.3/imagesloaded.pkgd.min.js" integrity="sha512-umsR78NN0D23AzgoZ11K7raBD+R6hqKojyBZs1w8WvYlsI+QuKRGBx3LFCwhatzBunCjDuJpDHwxD13sLMbpRA==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.4/isotope.pkgd.min.js" integrity="sha512-VDBOIlDbuC4VWxGJNmuFRQ0Li0SKkDpmGyuhAG5LTDLd/dJ/S0WMVxriR2Y+CyPL5gzjpN4f/6iqWVBJlht0tQ==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" integrity="sha256-X5PoE3KU5l+JcX+w09p/wHl9AzK333C4hJ2I9S5mD4M=" crossorigin="anonymous"></script>
+
+      
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+        
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/go.min.js"></script>
+        
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/c&#43;&#43;.min.js"></script>
+        
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/c.min.js"></script>
+        
+      
+
+      
+      
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_CHTML-full" integrity="sha256-GhM+5JHb6QUzOQPXSJLEWP7R73CbkisjzK5Eyij4U9w=" crossorigin="anonymous" async></script>
+      
+    
+
+    
+    
+
+    
+    
+    
+
+    
+    
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    
+    
+    <script>
+      const search_index_filename = "/index.json";
+      const i18n = {
+        'placeholder': "搜索...",
+        'results': "搜索结果",
+        'no_results': "没有找到结果"
+      };
+      const content_type = {
+        'post': "文章",
+        'project': "项目",
+        'publication' : "出版物",
+        'talk' : "演讲"
+        };
+    </script>
+    
+
+    
+    
+
+    
+    
+    <script id="search-hit-fuse-template" type="text/x-template">
+      <div class="search-hit" id="summary-{{key}}">
+      <div class="search-hit-content">
+        <div class="search-hit-name">
+          <a href="{{relpermalink}}">{{title}}</a>
+          <div class="article-metadata search-hit-type">{{type}}</div>
+          <p class="search-hit-description">{{snippet}}</p>
+        </div>
+      </div>
+      </div>
+    </script>
+    
+
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js" integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    <script src="/js/academic.min.14cafafda844d960749b7551524d1c3a.js"></script>
+
+    
+
+  </body>
+</html>
+
