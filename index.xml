@@ -134,8 +134,9 @@ return -1;
 &lt;p&gt;以确保跟踪器是新的。
 如果选择了某个对象，我们需要跟新该对象的位置，因为每一帧对于跟踪器都会重新计算跟踪目标的位置。使用update（）方法将定位对象的新位置，并返回&lt;code&gt;true&lt;/code&gt;和边界box对象。&lt;/p&gt;
 
-&lt;p&gt;来自 &lt;a href=&#34;https://www.pyimagesearch.com/2018/07/30/opencv-object-tracking/&#34; target=&#34;_blank&#34;&gt;https://www.pyimagesearch.com/2018/07/30/opencv-object-tracking/&lt;/a&gt;
-代码如下：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://s3-us-west-2.amazonaws.com/static.pyimagesearch.com/opencv-object-tracking/opencv_object_tracking_selection.gif&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;代码如下：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#include &amp;lt;iostream&amp;gt;
 #include &amp;lt;string&amp;gt;
