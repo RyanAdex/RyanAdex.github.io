@@ -4,6 +4,16 @@
     
     <url>
     
+      <loc>https://RyanAdex.github.io/2019/01/20/opencv-tracker/</loc>
+      <lastmod>2019-01-20T15:34:11+08:00</lastmod>
+      <changefreq>monthly</changefreq>
+      <priority>0.5</priority>
+    </url>
+    
+  
+    
+    <url>
+    
       <loc>https://RyanAdex.github.io/2019/01/15/opencv-yolov3/</loc>
       <lastmod>2019-01-15T23:43:58+08:00</lastmod>
       <changefreq>monthly</changefreq>
@@ -135,7 +145,7 @@
     <url>
     
       <loc>https://RyanAdex.github.io/tags/c&#43;&#43;/</loc>
-      <lastmod>2019-01-15T23:43:58+08:00</lastmod>
+      <lastmod>2019-01-20T15:34:11+08:00</lastmod>
       <changefreq>monthly</changefreq>
       <priority>0</priority>
     </url>
@@ -263,7 +273,7 @@
     <url>
     
       <loc>https://RyanAdex.github.io/tags/opencv/</loc>
-      <lastmod>2019-01-15T23:43:58+08:00</lastmod>
+      <lastmod>2019-01-20T15:34:11+08:00</lastmod>
       <changefreq>monthly</changefreq>
       <priority>0</priority>
     </url>

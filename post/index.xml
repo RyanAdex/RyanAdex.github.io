@@ -13,6 +13,15 @@
     
     
     <item>
+      <title>Opencv目标追踪</title>
+      <link>https://RyanAdex.github.io/2019/01/20/opencv-tracker/</link>
+      <pubDate>Sun, 20 Jan 2019 15:34:11 +0800</pubDate>
+      
+      <guid>https://RyanAdex.github.io/2019/01/20/opencv-tracker/</guid>
+      <description>参考：https://www.pyimagesearch.com/2018/07/30/opencv-object-tracking/ 引言 O</description>
+    </item>
+    
+    <item>
       <title>Opencv&#43;YOLO3目标检测/C&#43;&#43;</title>
       <link>https://RyanAdex.github.io/2019/01/15/opencv-yolov3/</link>
       <pubDate>Tue, 15 Jan 2019 23:43:58 +0800</pubDate>
