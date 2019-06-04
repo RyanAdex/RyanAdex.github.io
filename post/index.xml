@@ -13,12 +13,21 @@
     
     
     <item>
+      <title>Opendrive地图数据解析</title>
+      <link>https://RyanAdex.github.io/2019/06/04/opendrive/</link>
+      <pubDate>Tue, 04 Jun 2019 22:05:38 +0800</pubDate>
+      
+      <guid>https://RyanAdex.github.io/2019/06/04/opendrive/</guid>
+      <description>1.前言 高精度电子地图也称为高分辨率地图(HD Map，High Definition Map)，是一种专门为无人驾驶服务的地图。与传统导航地图不同的是，高精度地图</description>
+    </item>
+    
+    <item>
       <title>Opencv目标追踪</title>
       <link>https://RyanAdex.github.io/2019/01/20/opencv-tracker/</link>
       <pubDate>Sun, 20 Jan 2019 15:34:11 +0800</pubDate>
       
       <guid>https://RyanAdex.github.io/2019/01/20/opencv-tracker/</guid>
-      <description>参考：https://www.pyimagesearch.com/2018/07/30/opencv-object-tracking/ 引言 O</description>
+      <description>参考：https://www.pyimagesearch.com/2018/07/30/opencv-object-tracking/ 前言 O</description>
     </item>
     
     <item>
@@ -27,7 +36,7 @@
       <pubDate>Tue, 15 Jan 2019 23:43:58 +0800</pubDate>
       
       <guid>https://RyanAdex.github.io/2019/01/15/opencv-yolov3/</guid>
-      <description>1. 引言 YOLO3能够快速识别图片和视频中的80种物体，而且实时性强，准确度接近SSD。 Opencv是目前最流行的开源图像处理库，使用Open</description>
+      <description>1. 前言 YOLO3能够快速识别图片和视频中的80种物体，而且实时性强，准确度接近SSD。 Opencv是目前最流行的开源图像处理库，使用Open</description>
     </item>
     
     <item>

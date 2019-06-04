@@ -18,7 +18,7 @@
       <pubDate>Sun, 20 Jan 2019 15:34:11 +0800</pubDate>
       
       <guid>https://RyanAdex.github.io/2019/01/20/opencv-tracker/</guid>
-      <description>参考：https://www.pyimagesearch.com/2018/07/30/opencv-object-tracking/ 引言 O</description>
+      <description>参考：https://www.pyimagesearch.com/2018/07/30/opencv-object-tracking/ 前言 O</description>
     </item>
     
     <item>
@@ -27,7 +27,7 @@
       <pubDate>Tue, 15 Jan 2019 23:43:58 +0800</pubDate>
       
       <guid>https://RyanAdex.github.io/2019/01/15/opencv-yolov3/</guid>
-      <description>1. 引言 YOLO3能够快速识别图片和视频中的80种物体，而且实时性强，准确度接近SSD。 Opencv是目前最流行的开源图像处理库，使用Open</description>
+      <description>1. 前言 YOLO3能够快速识别图片和视频中的80种物体，而且实时性强，准确度接近SSD。 Opencv是目前最流行的开源图像处理库，使用Open</description>
     </item>
     
     <item>

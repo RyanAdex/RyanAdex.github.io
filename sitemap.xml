@@ -4,6 +4,16 @@
     
     <url>
     
+      <loc>https://RyanAdex.github.io/2019/06/04/opendrive/</loc>
+      <lastmod>2019-06-04T22:05:38+08:00</lastmod>
+      <changefreq>monthly</changefreq>
+      <priority>0.5</priority>
+    </url>
+    
+  
+    
+    <url>
+    
       <loc>https://RyanAdex.github.io/2019/01/20/opencv-tracker/</loc>
       <lastmod>2019-01-20T15:34:11+08:00</lastmod>
       <changefreq>monthly</changefreq>
@@ -204,6 +214,16 @@
     
       <loc>https://RyanAdex.github.io/tags/</loc>
       <lastmod>2018-12-09T20:29:13+08:00</lastmod>
+      <changefreq>monthly</changefreq>
+      <priority>0</priority>
+    </url>
+    
+  
+    
+    <url>
+    
+      <loc>https://RyanAdex.github.io/tags/xml/</loc>
+      <lastmod>2019-06-04T22:05:38+08:00</lastmod>
       <changefreq>monthly</changefreq>
       <priority>0</priority>
     </url>

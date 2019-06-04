@@ -15,10 +15,10 @@
   
     
   
-  <meta name="description" content="参考：https://www.pyimagesearch.com/2018/07/30/opencv-object-tracking/ 前言 O">
+  <meta name="description" content="1.前言 高精度电子地图也称为高分辨率地图(HD Map，High Definition Map)，是一种专门为无人驾驶服务的地图。与传统导航地图不同的是，高精度地图">
 
   
-  <link rel="alternate" hreflang="zh-Hans" href="https://RyanAdex.github.io/2019/01/20/opencv-tracker/">
+  <link rel="alternate" hreflang="zh-Hans" href="https://RyanAdex.github.io/2019/06/04/opendrive/">
 
   
 
@@ -84,30 +84,30 @@
   <link rel="icon" type="image/png" href="/img/icon.png">
   <link rel="apple-touch-icon" type="image/png" href="/img/icon-192.png">
 
-  <link rel="canonical" href="https://RyanAdex.github.io/2019/01/20/opencv-tracker/">
+  <link rel="canonical" href="https://RyanAdex.github.io/2019/06/04/opendrive/">
 
   <meta property="twitter:card" content="summary_large_image">
   
   <meta property="og:site_name" content="Ryan&#39;s Blog">
-  <meta property="og:url" content="https://RyanAdex.github.io/2019/01/20/opencv-tracker/">
-  <meta property="og:title" content="Opencv目标追踪 | Ryan&#39;s Blog">
-  <meta property="og:description" content="参考：https://www.pyimagesearch.com/2018/07/30/opencv-object-tracking/ 前言 O">
+  <meta property="og:url" content="https://RyanAdex.github.io/2019/06/04/opendrive/">
+  <meta property="og:title" content="Opendrive地图数据解析 | Ryan&#39;s Blog">
+  <meta property="og:description" content="1.前言 高精度电子地图也称为高分辨率地图(HD Map，High Definition Map)，是一种专门为无人驾驶服务的地图。与传统导航地图不同的是，高精度地图">
   
   
     
   <meta property="og:image" content="https://RyanAdex.github.io/img/icon-192.png">
   <meta property="og:locale" content="zh-Hans">
   
-  <meta property="article:published_time" content="2019-01-20T15:34:11&#43;08:00">
+  <meta property="article:published_time" content="2019-06-04T22:05:38&#43;08:00">
   
-  <meta property="article:modified_time" content="2019-01-20T15:34:11&#43;08:00">
-  
-
+  <meta property="article:modified_time" content="2019-06-04T22:05:38&#43;08:00">
   
 
   
 
-  <title>Opencv目标追踪 | Ryan&#39;s Blog</title>
+  
+
+  <title>Opendrive地图数据解析 | Ryan&#39;s Blog</title>
 
 </head>
 <body id="top" data-spy="scroll" data-target="#TableOfContents" data-offset="71" >
@@ -238,7 +238,7 @@
   
   
 <div class="article-container pt-3">
-  <h1 itemprop="name">Opencv目标追踪</h1>
+  <h1 itemprop="name">Opendrive地图数据解析</h1>
 
   
 
@@ -256,9 +256,9 @@
 
   <span class="article-date">
     
-    <meta content="2019-01-20 15:34:11 &#43;0800 CST" itemprop="datePublished">
-    <time datetime="2019-01-20 15:34:11 &#43;0800 CST" itemprop="dateModified">
-      Jan 20, 2019
+    <meta content="2019-06-04 22:05:38 &#43;0800 CST" itemprop="datePublished">
+    <time datetime="2019-06-04 22:05:38 &#43;0800 CST" itemprop="dateModified">
+      Jun 4, 2019
     </time>
   </span>
   <span itemscope itemprop="publisher" itemtype="http://schema.org/Person">
@@ -268,7 +268,7 @@
   
   <span class="middot-divider"></span>
   <span class="article-reading-time">
-    4 分钟阅读时间
+    5 分钟阅读时间
   </span>
   
 
@@ -283,35 +283,35 @@
   <ul class="share">
     <li>
       <a class="twitter"
-         href="https://twitter.com/intent/tweet?text=Opencv%e7%9b%ae%e6%a0%87%e8%bf%bd%e8%b8%aa&amp;url=https%3a%2f%2fRyanAdex.github.io%2f2019%2f01%2f20%2fopencv-tracker%2f"
+         href="https://twitter.com/intent/tweet?text=Opendrive%e5%9c%b0%e5%9b%be%e6%95%b0%e6%8d%ae%e8%a7%a3%e6%9e%90&amp;url=https%3a%2f%2fRyanAdex.github.io%2f2019%2f06%2f04%2fopendrive%2f"
          target="_blank" rel="noopener">
         <i class="fab fa-twitter"></i>
       </a>
     </li>
     <li>
       <a class="facebook"
-         href="https://www.facebook.com/sharer.php?u=https%3a%2f%2fRyanAdex.github.io%2f2019%2f01%2f20%2fopencv-tracker%2f"
+         href="https://www.facebook.com/sharer.php?u=https%3a%2f%2fRyanAdex.github.io%2f2019%2f06%2f04%2fopendrive%2f"
          target="_blank" rel="noopener">
         <i class="fab fa-facebook-f"></i>
       </a>
     </li>
     <li>
       <a class="linkedin"
-         href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fRyanAdex.github.io%2f2019%2f01%2f20%2fopencv-tracker%2f&amp;title=Opencv%e7%9b%ae%e6%a0%87%e8%bf%bd%e8%b8%aa"
+         href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fRyanAdex.github.io%2f2019%2f06%2f04%2fopendrive%2f&amp;title=Opendrive%e5%9c%b0%e5%9b%be%e6%95%b0%e6%8d%ae%e8%a7%a3%e6%9e%90"
          target="_blank" rel="noopener">
         <i class="fab fa-linkedin-in"></i>
       </a>
     </li>
     <li>
       <a class="weibo"
-         href="http://service.weibo.com/share/share.php?url=https%3a%2f%2fRyanAdex.github.io%2f2019%2f01%2f20%2fopencv-tracker%2f&amp;title=Opencv%e7%9b%ae%e6%a0%87%e8%bf%bd%e8%b8%aa"
+         href="http://service.weibo.com/share/share.php?url=https%3a%2f%2fRyanAdex.github.io%2f2019%2f06%2f04%2fopendrive%2f&amp;title=Opendrive%e5%9c%b0%e5%9b%be%e6%95%b0%e6%8d%ae%e8%a7%a3%e6%9e%90"
          target="_blank" rel="noopener">
         <i class="fab fa-weibo"></i>
       </a>
     </li>
     <li>
       <a class="email"
-         href="mailto:?subject=Opencv%e7%9b%ae%e6%a0%87%e8%bf%bd%e8%b8%aa&amp;body=https%3a%2f%2fRyanAdex.github.io%2f2019%2f01%2f20%2fopencv-tracker%2f">
+         href="mailto:?subject=Opendrive%e5%9c%b0%e5%9b%be%e6%95%b0%e6%8d%ae%e8%a7%a3%e6%9e%90&amp;body=https%3a%2f%2fRyanAdex.github.io%2f2019%2f06%2f04%2fopendrive%2f">
         <i class="fas fa-envelope"></i>
       </a>
     </li>
@@ -349,174 +349,235 @@
     <div class="article-style" itemprop="articleBody">
       
 
-<blockquote>
-<p>参考：<a href="https://www.pyimagesearch.com/2018/07/30/opencv-object-tracking/" target="_blank">https://www.pyimagesearch.com/2018/07/30/opencv-object-tracking/</a></p>
-</blockquote>
+<h1 id="1-前言">1.前言</h1>
 
-<h1 id="前言">前言</h1>
+<p>高精度电子地图也称为高分辨率地图(HD Map，High Definition Map)，是一种专门为无人驾驶服务的地图。与传统导航地图不同的是，高精度地图除了能提供的道路(Road)级别的导航信息外，还能够提供车道(Lane)级别的导航信息。无论是在信息的丰富度还是信息的精度方面，都是远远高于传统导航地图的。
+目前市面上提供高精度地图的厂商有：tomtom、here、百度、高德等。
+高精度地图流行的格式有很多种，有的厂商直接基于rndf地图增加属性来制作高精度地图，也有厂商使用osm格式增加属性来制作高精度地图。
+对于ADAS系统，则有ADASIS定义了地图的数据模型及传输方式，以CAN作为传输通道。
+OpenDRIVE是一种开放的文件格式, 用于路网的逻辑描述，常用于高精度地图的制作，百度Apollo则使用基于OpenDRIVE格式改进过的高精度地图。</p>
 
-<p>Opencv作为图像处理开源库包含了Object Tracking目标追踪的一些API，使用Opencv能够方便快捷的编写目标追踪程序。</p>
+<p>本文主要对OpenDRIVE文件格式进行简述，详情可参考：<a href="http://www.opendrive.org/docs/OpenDRIVEFormatSpecDelta_1.5M_vs_1.4H.pdf。" target="_blank">http://www.opendrive.org/docs/OpenDRIVEFormatSpecDelta_1.5M_vs_1.4H.pdf。</a></p>
 
-<p>Opencv4.0目前包含了8种目标追踪算法：</p>
+<h1 id="2-正文">2.正文</h1>
+
+<p>OpenDRIVE文件格式为XML，该XML文件种包含了很多地图信息，如Road、Junction、station等。</p>
+
+<p><img src="/img/opendrive/example.jpg" alt="example" /></p>
+
+<p>主要结构如下：</p>
+
+<pre><code> OpenDRIVE 
+|-header 
+| |-geoReference 
+| |-offset 
+|-road  
+| |-link 
+| | |-predecessor 
+| | |-successor 
+| | |-neighbor 
+| |-type 
+| | |-speed 
+| |-planView 
+| | |-geometry | | | |-line 
+| | | |-spiral 
+| | | |-arc 
+| | | |-poly3 
+| | | |-paramPoly3 
+| |-elevationProfile 
+| | |-elevation 
+| |-lateralProfile 
+| | |-superelevation 
+| | |-crossfall 
+| | |-shape 
+| |-lanes 
+| | |-laneOffset 
+| | |-laneSection 
+| | | |-left 
+| | | | |-lane 
+| | | | | |-link 
+| | | | | | |-predecessor 
+| | | | | | |-successor 
+| | | | | |-width 
+| | | | | |-border 
+| | | | | |-roadMark 
+| | | | | | | -sway 
+| | | | | | | -type 
+| | | | | | | | -line 
+| | | | | | | -explicit 
+| | | | | | | | -line 
+| | | | | |-material 
+| | | | | |-visibility 
+| | | | | |-speed 
+| | | | | |-access 
+| | | | | |-height 
+| | | | | |-rule 
+| | | |-center 
+| | | | |-lane 
+| | | | | |-link 
+| | | | | | |-predecessor 
+| | | | | | |-successor
+| | | | | | |-predecessor 
+| | | | | | |-successor 
+| | | | | |-roadMark 
+| | | | | | | -sway 
+| | | | | | | -type 
+| | | | | | | | -line 
+| | | | | | | -explicit 
+| | | | | | | | -line 
+| | | |-right 
+| | | | |-lane 
+| | | | | |-link 
+| | | | | | |-predecessor 
+| | | | | | |-successor 
+| | | | | |-width 
+| | | | | |-border 
+| | | | | |-roadMark 
+| | | | | | | -sway 
+| | | | | | | -type 
+| | | | | | | | -line 
+| | | | | | | -explicit 
+| | | | | | | | -line 
+| | | | | |-material 
+| | | | | |-visibility 
+| | | | | |-speed 
+| | | | | |-access 
+| | | | | |-height 
+| | | | | |-rule 
+| |-objects 
+| | |-object 
+| | | |-repeat 
+| | | |-outlines 
+| | | | |-outline 
+| | | | | |-cornerRoad 
+| | | | | |-cornerLocal 
+| | | |-material 
+| | | |-validity 
+| | | |-parkingSpace 
+| | | |-markings 
+| | | | |-marking 
+| | | | | |-cornerReference 
+| | | |-borders 
+| | | | |-border 
+| | | | | |-cornerReference 
+| | |-objectReference 
+| | | |-validity | | |-tunnel 
+| | | |-validity | | |-bridge 
+| | | |-validity 
+| |-signals 
+| | |-signal 
+| | | |-validity 
+| | | |-dependency 
+| | | |-reference 
+| | | |-positionRoad 
+| | | |-positionInertial 
+| | |-signalReference 
+| | | |-validity 
+| |-surface 
+| | |-CRG 
+| |-railroad 
+| | |-switch 
+| | | |-mainTrack 
+| | | |-sideTrack 
+| | | |-partner 
+|-controller 
+| |-control 
+|-junction 
+| |-connection 
+| | |-predecessor 
+| | |-successor 
+| | |-laneLink | |-priority 
+| |-controller 
+| |-surface 
+| | |-CRG 
+|-junctionGroup 
+| |-junctionReference 
+|-station 
+| |-platform 
+| | |-segment 
+</code></pre>
+
+<h2 id="a-坐标系">A.坐标系</h2>
+
+<p>最先考虑的应该时坐标系的表达方式，在GIS中一般使用两种常用的坐标系类型：</p>
 
 <ul>
-<li><strong><code>Boosting</code></strong>：基于在线的AdaBoost, 这个分类器需要对对象的正、负例进行训练。用户提供的初始化框(或通过其它算法检测到对象，必须MOG2，KNN检测到小车)来作为对象的正例，并将边界框外的图像块作为背景(负类)
-优点：没有。这个算法已经有10年的历史了，找不到一个很好的理由去使用它，特别是当其他基于类似原理的高级跟踪器(MIL, KCF)也可用的时候。</li>
-<li><strong><code>CSRT</code></strong>：判别性相关滤波器。
-优点：精确度比KCF稍高。
-缺点：速度不如KCF块。</li>
-<li><strong><code>GOTURN</code></strong>：在跟踪器类的所有跟踪算法中，这是唯一基于卷积神经网络(CNN)的算法。也是唯一一个使用离线训练的模型，因此它比其他跟踪器更快。从opencv文档可以看出该算法对视角变化、光照、变形都具有很好的鲁棒性，但是对于遮挡性能较差。</li>
-<li><strong><code>KCF</code></strong>：这个跟踪器基于前面两个跟踪器中提出的想法。该跟踪器在MIL跟踪器中使用的多个正样本具有较大的重叠区域。
-优点：精度和速度都比MIL好，建议在大多数应用程序中使用该算法。
-缺点：还是完全遮挡</li>
-<li><strong><code>MedianFlow</code></strong>：经过测试中，发现这个跟踪器在小运动情况下表现最好。不像其他跟踪器，即使跟踪失败了还继续跟踪，这个跟踪器知道什么时候失败。
-优点：跟踪失败报告，小运动下表现好
-缺点：大运动，该算法失灵</li>
-<li><strong><code>MIL</code></strong>：这个跟踪器与上面描述的boost跟踪器类似。最大的区别是，它不是只考虑对象的当前位置作为正类，还考虑当前位置邻域范围的潜在位置作为正类。
-优点： 性能很好。它不boosting跟踪器那样，在部分遮挡下依然表现挺佳。但效果不如KCF好。
-缺点：跟踪失败没有可靠的报告。完全遮挡的话性能差</li>
-<li><strong><code>MOSSE</code></strong>：如果对速度要求非常高，MOSSE可能是你的更好选择。
-优点：速度比CSRT和KCF都要快。
-缺点：精度没有CSRT和KCF高。</li>
-<li><strong><code>TLD</code></strong>：TLD stands for Tracking, learning and detection. 如果有一个视频序列，对象隐藏在另一个对象后面，这个跟踪器可能是一个不错的选择。
-优点：在多帧的情况下，在遮挡的情况下工作最好。此外，该算法能很好的应对尺度变化。<br />
-缺点：大量的假阳性使得其几乎无法使用。
-<br />
-<br /></li>
+<li>全局坐标系或球坐标系，例如经纬度。这些坐标系通常称为地理坐标系。(GCS)</li>
 </ul>
 
-<p><strong>我的个人建议是：</strong></p>
+<p><img src="/img/opendrive/wgs.jpg" alt="wgs" /></p>
 
 <ul>
-<li>当您需要<strong>更高的目标跟踪精度并可承受较慢的fps吞吐量时</strong>，请使用CSRT</li>
-<li>当您需要<strong>更快的fps吞吐量</strong>，但可以<strong>处理稍低的对象跟踪精度时</strong>，请使用KCF</li>
-<li>当您需要<strong>纯速度时</strong>使用MOSSE</li>
+<li>基于横轴墨卡托、亚尔勃斯等积或罗宾森等地图投影的投影坐标系，这些地图投影（以及其他多种地图投影模型）提供了各种机制将地球球面的地图投影到二维笛卡尔坐标平面上。(PCS)</li>
 </ul>
 
-<h1 id="使用opencv进行对象跟踪">使用Opencv进行对象跟踪</h1>
+<p><img src="/img/opendrive/utm.jpg" alt="utm" /></p>
 
-<p>确保电脑已经安装了opencv4.0。
-要使用Opencv执行对象跟踪，请引入以下头文件：</p>
+<p>在OpenDRIVE中可表示为：</p>
 
-<pre><code class="language-cpp">#include &lt;iostream&gt;
-#include &lt;string&gt;
-#include &lt;opencv.hpp&gt;
-#include &lt;tracking.hpp&gt;
+<pre><code class="language-xml">&lt;geoReference&gt;
+           &lt;![CDATA[+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units= m+no_defs]]&gt; 
+&lt;/geoReference&gt; 
+ 
 </code></pre>
 
-<p>首先要创建一个跟踪器并实例化，本文仅使用KCF跟踪器作为示例：</p>
+<p>从OpenDRIVE 1.4 开始, 可以使用格式化为 &ldquo;proj4&rdquo;-字符串的投影定义对路网进行地理参照转化.
+<a href="https://proj.org/" target="_blank">PROJ 是一种通用坐标变换软件</a>, 它将地理空间坐标从一个坐标参考系统 (CRS) 转换为另一个坐标参考系统。这包括制图投影和大地测量转换。
+geoReference元素定义了该文件使用的投影坐标系，其中地理坐标系为WGS-84。</p>
 
-<pre><code class="language-cpp">cv::Ptr&lt;cv::Tracker&gt; tracker;//跟踪器
-tracker = cv::TrackerKCF::create();
-</code></pre>
+<p>在OpenDRIVE数据中大量使用的位置信息都是投影后的xy坐标，而除了该投影坐标系，还定义了一种轨迹坐标系，如下所示，s坐标是沿着reference line的，关于reference line后面介绍，长度是在xy坐标下计算的。
+t坐标，是相对于reference line的侧向位置，左正，右负。
+<img src="/img/opendrive/cs.jpg" alt="cs" /></p>
 
-<p>接下来，我们初始化视频流，并定义显示窗口：</p>
+<h2 id="b-road-layout">B.Road Layout</h2>
 
-<pre><code class="language-cpp">cv::Mat frame;//保存每帧图像
-cv::VideoCapture cap(&quot;run.mp4&quot;);
-//创建窗口
-static const string kWinName = &quot;object tracking in OpenCV&quot;;
-cv::namedWindow(kWinName,cv::WINDOW_AUTOSIZE);
-if(!cap.isOpened()){
-cout &lt;&lt;&quot;Could not read video file&quot;&lt;&lt;endl;
-return -1;
-}
-</code></pre>
+<p>OpenDRIVE中路网结构中的一个road，该road有三部分组成，蓝色的reference line，车道lane，车道lane的其他feature(限速等)。</p>
 
-<p>为了能够在视频中选取跟踪目标，需要定义一个初始化ROI区域：</p>
+<p><img src="/img/opendrive/rl.jpg" alt="rl" /></p>
 
-<pre><code class="language-cpp">cv::Rect2d initBB;//初始目标坐标
-</code></pre>
+<p>所有道路都由一条参照线组成, 用于定义基本几何 (弧线、直线等)。沿着参考线, 可以定义道路的各种属性。这些是, 例如海拔概况、车道、交通标志等。道路可以直接连接 (当两个给定的道路之间只有一个连接时), 也可以通过路口 (当从某一道路到其他道路有一个以上的连接时)。</p>
 
-<p>从视频流循环帧分析：</p>
+<p>所有属性都可以根据本规范中规定的标准进行参数化, 也可以通过用户定义的数据进行参数化。</p>
 
-<pre><code class="language-cpp">while(key=cv::waitKey(1)){
-    //读取frame
-    cap&gt;&gt;frame;
-    //如果播放完则停止
-    if(frame.empty()){
-        break;
-    }
-    if(key=='s'){
-        if(!tracker-&gt;empty()){
-            tracker.release();
-            tracker = cv::TrackerKCF::create();
-        }
-        //选择初始目标区域
-        initBB=cv::selectROI(kWinName,frame,true,false);
-        tracker-&gt;init(frame,initBB);
-    }
-    if(tracker-&gt;update(frame,initBB)){
-        cv::rectangle(frame,initBB,cv::Scalar(255,0,0),3);
-    }
-    cv::imshow(kWinName,frame);
-}
-</code></pre>
+<h2 id="c-reference-line">C.Reference Line</h2>
 
-<p>为了更快的处理数据，我们可以将读取的frame进行cv::resize（）操作调整图片大小，该用法文章不做说明。因为处理的数据越少，我们的对象跟踪管道的运行速度就越快。
-在跟踪前我们需要使用快捷键s来对跟踪目标进行选取并初始化，考虑到在视频流中可能进行多次跟踪目标初始化，所以需要加入：</p>
+<p>整个地图路网由很多的road构成，而每个road中都会包含reference line，就是一条线，它没有宽度。
+reference line，线条有好几种类型，直线，螺旋线等，
+The geometry of the reference line is described as a sequence of primitives of various types. The
+available primitives are:</p>
 
-<pre><code class="language-cpp">if(!tracker-&gt;empty()){
-    tracker.release();
-    tracker = cv::TrackerKCF::create();
-}
-</code></pre>
+<p>straight line (constant zero curvature)
+spiral (linear change of curvature)
+curve (constant non-zero curvature along run-length)
+cubic polynom
+parametric cubic curves</p>
 
-<p>以确保跟踪器是新的。
-如果选择了某个对象，我们需要跟新该对象的位置，因为每一帧对于跟踪器都会重新计算跟踪目标的位置。使用update（）方法将定位对象的新位置，并返回<code>true</code>和边界box对象。</p>
+<p>下图为几种常见的reference line，注意图中的两个坐标系,xy和st</p>
 
-<p><img src="https://s3-us-west-2.amazonaws.com/static.pyimagesearch.com/opencv-object-tracking/opencv_object_tracking_selection.gif" alt="" /></p>
+<p><img src="/img/opendrive/rrl.jpg" alt="rrl" /></p>
 
-<p>代码如下：</p>
+<h2 id="d-lane">D.Lane</h2>
 
-<pre><code class="language-cpp">#include &lt;iostream&gt;
-#include &lt;string&gt;
-#include &lt;opencv.hpp&gt;
-#include &lt;tracking.hpp&gt;
-using namespace std;
-int main(int argc, char const *argv[])
-{
-    cv::Ptr&lt;cv::Tracker&gt; tracker;//跟踪器
-    cv::Mat frame;//保存每帧图像
-    char key;//快捷键
-    tracker = cv::TrackerKCF::create();
-    cv::Rect2d initBB;//初始目标坐标
-    //Read video
-    cv::VideoCapture cap(&quot;D:\\Code\\C++\\YOLO3-detecction\\run.mp4&quot;);
-    // cv::VideoCapture cap(0);
-    //创建窗口
-    static const string kWinName = &quot;object tracking in OpenCV&quot;;
-    cv::namedWindow(kWinName,cv::WINDOW_AUTOSIZE);
-    if(!cap.isOpened()){
-        cout &lt;&lt;&quot;Could not read video file&quot;&lt;&lt;endl;
-    return -1;
-    }
-    while(key=cv::waitKey(1)){
-        //读取frame
-        cap&gt;&gt;frame;
-        cv::resize(frame,frame,cv::Size(frame.cols/2,frame.rows/2),0,0,cv::INTER_LINEAR);
-        //如果播放完则停止
-        if(frame.empty()){
-            break;
-        }
-        if(key=='s'){
-            if(!tracker-&gt;empty()){
-                tracker.release();
-                tracker = cv::TrackerKCF::create();
-            }
-            //选择初始目标区域
-            initBB=cv::selectROI(kWinName,frame,true,false);
-            tracker-&gt;init(frame,initBB);
-        }
-        if(tracker-&gt;update(frame,initBB)){
-            cv::rectangle(frame,initBB,cv::Scalar(255,0,0),3);
-        }
-        cv::imshow(kWinName,frame);
-    }
-    tracker.release();
-    return 0;
-}
-</code></pre>
+<p>车道是由数字识别的, 这些数字是唯一的 (每个车道部分, 见下文)
+- 顺序 (即没有缝隙),
+- 从参考线上的0开始
+- 向左上升 (正 t 方向)
+- 向右下降 (负 t 方向)</p>
+
+<p>车道总数不受限制。参考线本身被定义为车道零, 不能有宽度条目 (即其宽度必须始终为 0.0)。</p>
+
+<p><img src="/img/opendrive/l.jpg" alt="l" /></p>
+
+<h2 id="e-road-linkage">E.Road Linkage</h2>
+
+<p>road之间的连接定义了两种(每个road有唯一的ID)，一种是有明确的连接关系，例如前后只有一条road，那么通过
+successor/predecessor进行连接(例如下图中的road 1和road 2)。</p>
+
+<p><img src="/img/opendrive/R.jpg" alt="R" /></p>
+
+<h1 id="3-总结">3.总结</h1>
+
+<p>总之，对于一个road来说，先确定reference line，有了reference line的几何形状和位置，然后再确定reference line左右的车道lane,车道lane又有实线和虚线等属性；road 和road之间通过普通连接和Junction进行连接，同时还要将road中的相关车道进行连接。</p>
 
     </div>
 
@@ -525,9 +586,7 @@ int main(int argc, char const *argv[])
 
 <div class="article-tags">
   
-  <a class="badge badge-light" href="/tags/c&#43;&#43;/">C&#43;&#43;</a>
-  
-  <a class="badge badge-light" href="/tags/opencv/">opencv</a>
+  <a class="badge badge-light" href="/tags/xml/">XML</a>
   
 </div>
 
@@ -591,34 +650,15 @@ int main(int argc, char const *argv[])
 
     
     
-    <div class="article-widget">
-      <div class="hr-light"></div>
-      <h3>相关</h3>
-      <ul>
-        
-        <li><a href="/2019/01/15/opencv-yolov3/">Opencv&#43;YOLO3目标检测/C&#43;&#43;</a></li>
-        
-        <li><a href="/2019/01/06/lanedetection/">车道线检测/Opencv/传统方法</a></li>
-        
-        <li><a href="/2018/12/09/queue/">LeetCode 队列与BFS--岛屿的数量</a></li>
-        
-      </ul>
-    </div>
-    
 
     
     <div class="article-widget">
       <div class="post-nav">
   
-  <div class="post-nav-item">
-    <div class="meta-nav">下一页</div>
-    <a href="https://RyanAdex.github.io/2019/06/04/opendrive/" rel="next">Opendrive地图数据解析</a>
-  </div>
-  
   
   <div class="post-nav-item">
     <div class="meta-nav">上一页</div>
-    <a href="https://RyanAdex.github.io/2019/01/15/opencv-yolov3/" rel="prev">Opencv&#43;YOLO3目标检测/C&#43;&#43;</a>
+    <a href="https://RyanAdex.github.io/2019/01/20/opencv-tracker/" rel="prev">Opencv目标追踪</a>
   </div>
   
 </div>
